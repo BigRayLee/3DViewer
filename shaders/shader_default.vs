@@ -27,8 +27,7 @@ uniform adaptiveParameters params;
 
 /*base index for the ssbo*/
 uniform int level;
-uniform int base_p;
-uniform float step;
+uniform int parentBase;
 
 /*smooth shading*/
 uniform bool smooth_shadering;
@@ -68,7 +67,7 @@ void main(){
     vec4 gl = vec4(pos, 1.0);
     Normal = normal;
     if(params.isAdaptive){
-        uint p = 3 * (idx + base_p);
+        uint p = 3 * (idx + parentBase);
         lambda = computeBlend(level, params.kappa, dis);
 
         gl = lambda * vec4(pos, 1.0) + (1 - lambda) * vec4(aPos_ssbo[p], aPos_ssbo[p + 1], aPos_ssbo[p + 2], 1.0);

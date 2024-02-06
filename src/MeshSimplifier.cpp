@@ -500,7 +500,7 @@ void *BuildParallel(void *arg)
     return NULL;
 }
 
-void LODConstructor(HLOD *hlod, int curLevel, int width, float targetError, int max_level){
+void LODConstructor(HLOD *hlod, int curLevel, int width, float targetError){
     /* Init parent mesh level */
     InitParentMeshGrid(hlod->lods[curLevel+1], hlod->lods[curLevel]);
     
@@ -515,18 +515,12 @@ void LODConstructor(HLOD *hlod, int curLevel, int width, float targetError, int 
     blks_simplify.width = width;
     blks_simplify.list = (Boxcoord *)calloc(block_max_num, block_max_num * 3 * sizeof(unsigned short));
     blks_simplify.maxBoxCount = ComputeMaxCounts(hlod, curLevel, &blks_simplify);
-
-    cout<<"blk cube max count : "<<blks_simplify.maxBoxCount<<" idx :"<<blks_simplify.maxIdxCount<<" vert: "
-    <<blks_simplify.maxVertexCount<<endl;
     
     /* Parent cube construction block information */
     Block blks_parent;
     blks_parent.width = 2;
     blks_parent.list = (Boxcoord *)calloc(block_max_num, (block_max_num) * 3 * sizeof(unsigned short));
     blks_parent.maxBoxCount = ComputeMaxCounts(hlod, curLevel, &blks_parent);
-
-    cout<<"parent blk cube max count : "<<blks_parent.maxBoxCount<<" idx :"<<blks_parent.maxIdxCount<<" vert: "
-    <<blks_parent.maxVertexCount<<endl;
 
     /* Thread parameter */
     Parameter attr;
@@ -593,7 +587,7 @@ void HLODConsructor(HLOD *hlod, int maxLevel, float targetError){
         cout << "LOD: " << maxLevel - 1 - i << " ";
 
         TimerStart();
-        LODConstructor(hlod, i, SC_BLOCK_SIZE, targetError, maxLevel);
+        LODConstructor(hlod, i, SC_BLOCK_SIZE, targetError);
         TimerStop("build time: ");
 
         cout << "Cell: " << hlod->lods[i+1]->cubeTable.size() 

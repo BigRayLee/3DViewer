@@ -34,57 +34,6 @@ int Cube::GetTextureIndexCount() const{
     return idxUVCount;
 }
 
-int Cube::GetTextureParentCount() const{
-    return parentMesh.uvCount;
-}
-
-int Cube::GetVertexParentCount() const {
-    return parentMesh.posCount;
-}
-
-int Cube::GetIndexTextureParentCount() const {
-    return parentMesh.idxUVCount;
-}
-
-int Cube::GetIndexParentCount() const {
-    return parentMesh.idxCount;
-}
-
-/* get the max position value and min position value for the quantization of position */
-void Cube::GetAttributeMaxMin(){
-    for(size_t i = 0; i < mesh.posCount; ++i){
-        /*max value*/
-        if(posMax[0] < mesh.positions[ 3 * i])
-            posMax[0] = mesh.positions[ 3 * i];
-        if(posMax[1] < mesh.positions[ 3 * i + 1])
-            posMax[1] = mesh.positions[ 3 * i + 1];
-        if(posMax[2] < mesh.positions[ 3 * i + 2])
-            posMax[2] = mesh.positions[ 3 * i + 2];
-        
-        /*min value*/
-        if(posMin[0] > mesh.positions[ 3 * i])
-            posMin[0] = mesh.positions[ 3 * i];
-        if(posMin[1] > mesh.positions[ 3 * i + 1])
-            posMin[1] = mesh.positions[ 3 * i + 1];
-        if(posMin[2] > mesh.positions[ 3 * i + 2])
-            posMin[2] = mesh.positions[ 3 * i + 2];
-        
-        if(mesh.uvs){
-            /*max value*/
-            if(uvMax[0] < mesh.uvs[2 * i])
-                uvMax[0] = mesh.uvs[2 * i];
-            if(uvMax[1] < mesh.uvs[2 * i + 1])
-                uvMax[1] = mesh.uvs[2 * i + 1];
-            
-            /*min value*/
-            if(uvMin[0] > mesh.uvs[2 * i])
-                uvMin[0] = mesh.uvs[2 * i];
-            if(uvMin[1] > mesh.uvs[2 * i + 1])
-                uvMin[1] = mesh.uvs[2 * i + 1];
-        }
-    }
-}
-
 /*
     Compute the Bounding Box vertex
          F----G

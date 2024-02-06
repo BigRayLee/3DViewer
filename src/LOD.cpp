@@ -36,13 +36,6 @@ size_t LOD::CalculateVertexCounts()
     return totalVertCount;
 }
 
-void LOD::Clean()
-{
-    cubeTable.clear();
-    level = -1;
-    cubeLength = 0.0f;
-}
-
 void Dispatch(int xyz[3], unordered_map<uint64_t,Cube >&table){
     uint64_t ijk = (uint64_t)(xyz[0]) | ((uint64_t)(xyz[1]) << 16) | ((uint64_t)(xyz[2]) << 32);
     if UNLIKELY(table.size() == 0)

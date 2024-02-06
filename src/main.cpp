@@ -88,16 +88,6 @@ int main(int argc, char *argv[])
     gettimeofday(&end, NULL);
     GetElapsedTime(start, end, "\nModel Reading and Multi-Resolution model build time: ");
     
-    /* Mesh quantization */
-    // if(isQuant){
-    //     for(int i = 0; i <= level; ++i)
-    //         for(auto &cb : multiResoModel.lods[i]->cubeTable)
-    //             multiResoModel.lods[i]->MeshQuantization(cb.second);
-    // }
-        
-    /* Compute the LOD error */
-    //LODErrorCalculation(multiResoModel.lods, level);
-    
     /* Display */
     cout << "\nAdpative LOD Rendering..." << endl;
     

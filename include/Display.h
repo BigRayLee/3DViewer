@@ -20,12 +20,10 @@
 #include "Viewer.h"
 #include "Frustum.h"
 #include "BoundingBoxDraw.h"
-#include "TextureFile.h"
 #include "Chrono.h"
 #include "File.h"
 
 using namespace std;
-
 
 static constexpr int SC_MAX_FRAMEBUFFER_WIDTH = 1920;
 static constexpr int SC_MAX_FRAMEBUFFER_HEIGHT = 1080;
@@ -39,9 +37,6 @@ int Display(HLOD &multiResoModel, int maxLevel, vector<string> textures_path, bo
 /* Load the children of cell*/
 int LoadChildCell(int ijk_p[3], LOD *meshbook[], 
                  glm::mat4 projection, glm::mat4 view, glm::mat4 model, Camera* camera, int level_max, int level_current);
-
-/* Calculate the current gpub using memory */
-float CaculateGpuSize(Cube &cell, bool isTexture);
 
 /* Select the visible cell based on current viewpoint */
 void SelectCellVisbility(LOD *meshbook[], int maxLevel, glm::mat4 model, glm::mat4 view, glm::mat4 projection);

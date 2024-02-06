@@ -22,8 +22,6 @@ struct LOD{
     unordered_map<uint64_t,Cube> cubeTable;        /* hashmap between ijk and cell*/
     size_t totalTriCount = 0;
     size_t totalVertCount = 0;
-    size_t vertexOffset = 0;
-    size_t indexOffset = 0;
     int level;                                    /* level*/
     int gridSize;                                 /* grid size 1<<L */ 
     float step;
@@ -35,9 +33,6 @@ struct LOD{
     size_t CalculateTriangleCounts();                     /*get the total number of triangle of this level*/
     size_t CalculateVertexCounts();                       /*get the total number of vertex of this level*/
     size_t GetCubeCounts();                         /*get bounding box number*/
-    void MeshQuantization(Cube &bbx);               /*mesh quantization for each cell*/
-    void CleanBBXData(Cube &bbx);                   /*clean the bounding box*/
-    void Clean();                                   /*clean the LOD structure*/
 };
 
 struct HLOD{
@@ -52,10 +47,4 @@ struct HLOD{
 
 /* Dispath the triangle based on the triangle, push the ijk to the cubeTable, push the ijk and cells to the cubeTable*/
 void Dispatch(int xyz[3], unordered_map<uint64_t,Cube > &cubeTable);
-
-/* Calculate the multi-resolution model information */
-void ComputeMeshGridsInfo(LOD *meshbook[], int level, mesh_offset_cell &sum_offset, bool mesh_quatization);
-
-/* Simplification error(extent error) based on the M0 and ML */
-float LODErrorCalculation(LOD *meshbook[], int level);
 
