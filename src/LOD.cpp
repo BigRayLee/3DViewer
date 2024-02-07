@@ -11,7 +11,7 @@ size_t LOD::GetCubeCounts()
     return cubeTable.size();
 }
 
-void LOD::SetMeshGrid()
+void LOD::SetMeshGrid(float max[3], float min[3])
 {
     cubeLength = std::max((max[0] - min[0]), std::max((max[1] - min[1]), (max[2] - min[2]) ));
     cubeLength /= gridSize;
@@ -75,7 +75,6 @@ void Dispatch(int xyz[3], unordered_map<uint64_t,Cube >&table){
     }
 }
 
-/* Build the highest resolution LOD */
 void HLOD::BuildLODFromInput(Mesh* rawMesh, size_t vertCount, size_t triCount)
 {
     /* Get the max and min position value of the model */
@@ -83,15 +82,15 @@ void HLOD::BuildLODFromInput(Mesh* rawMesh, size_t vertCount, size_t triCount)
     
     TimerStart();
     for (int i = 0; i < vertCount * 3; i = i + 3){
-        GetMaxMin(rawMesh->positions[i], rawMesh->positions[i + 1], rawMesh->positions[i + 2], &lods[0]->min[0], &lods[0]->max[0]);
+        GetMaxMin(rawMesh->positions[i], rawMesh->positions[i + 1], rawMesh->positions[i + 2], min, max);
     }
     TimerStop("Bounding box computing time: ");
     
-    std::cout<< "Xmin: "<<lods[0]->min[0]<<" "<<"Ymin: "<<lods[0]->min[1]<<" "<<"Zmin: "<<lods[0]->min[2]<<endl;
-    std::cout<< "Xmax: "<<lods[0]->max[0]<<" "<<"Ymax: "<<lods[0]->max[1]<<" "<<"Zmax: "<<lods[0]->max[2]<<endl;
+    std::cout<< "Xmin: "<<min[0]<<" "<<"Ymin: "<<min[1]<<" "<<"Zmin: "<<min[2]<<endl;
+    std::cout<< "Xmax: "<<max[0]<<" "<<"Ymax: "<<max[1]<<" "<<"Zmax: "<<max[2]<<endl;
     
     /* Set LOD information */
-    lods[0]->SetMeshGrid();
+    lods[0]->SetMeshGrid(max, min);
     
     start = clock();
     /* Dispatch the traingle */
@@ -108,7 +107,7 @@ void HLOD::BuildLODFromInput(Mesh* rawMesh, size_t vertCount, size_t triCount)
         
         /* Assign the traingle to the ijk cube */
         int ijk[3];
-        Float2Int(ct, ijk, lods[0]->min, lods[0]->step);
+        Float2Int(ct, ijk, min, lods[0]->step);
 
         /* Dispatch the triangle */
         Dispatch(ijk, lods[0]->cubeTable);
@@ -231,7 +230,7 @@ void HLOD::BuildLODFromInput(Mesh* rawMesh, size_t vertCount, size_t triCount)
         cube.second.triangleCount = new_index_count / 3;
 
         /* compute the Cube bottom point assign the ijk to the bounding box and the cell */
-        cube.second.ComputeBottomVertex(cube.second.bottom, cube.second.ijk, lods[0]->cubeLength, lods[0]->min);
+        cube.second.ComputeBottomVertex(cube.second.bottom, cube.second.ijk, lods[0]->cubeLength, min);
         cube.second.ijk_64 = cube.first;
     }
     end = clock();
@@ -249,6 +248,11 @@ void HLOD::BuildLODFromInput(Mesh* rawMesh, size_t vertCount, size_t triCount)
     /* Update the hlod data offset */
     curIdxOffset = totalIndexCount;
     curVertOffset = totalVertCount;
+
+    data.normals = (float*)realloc(data.normals, data.posCount * VERTEX_STRIDE);
+    data.positions = (float*)realloc(data.positions, data.posCount * VERTEX_STRIDE);
+    data.remap = (uint32_t*)realloc(data.remap, data.posCount * sizeof(uint32_t));
+    data.indices = (uint32_t*)realloc(data.indices, data.idxCount * sizeof(uint32_t));
 
     MemoryFree(remap);
     MemoryFree(verts);

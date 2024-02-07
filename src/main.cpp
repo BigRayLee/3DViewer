@@ -25,12 +25,6 @@ using namespace std;
 int main(int argc, char *argv[])
 {
     string filePath = argv[1];
-    string enableQuantization = argv[2];
-
-    bool isQuant = false;
-    if(enableQuantization == "-q"){
-        isQuant = true;
-    }
         
     /* Read geometry data from model */
     ModelReader * modelReader = new ModelReader;
@@ -50,19 +44,6 @@ int main(int argc, char *argv[])
         errorThreshold = atof(argv[4]);
     }
 
-    /* For .ply model, the folder path of texture needs to be indiqued */
-    vector<string> texturesPath;
-    if (filePath.substr(filePath.length() - 3, filePath.length()) == "ply")
-    {
-        texturesPath.push_back(argv[argc - 1]);
-    }
-    else if(filePath.substr(filePath.length() - 3, filePath.length()) == "txt"){
-        texturesPath.push_back(argv[argc - 1]);
-    }
-    else{
-        texturesPath = modelReader->texturesPath;
-    }
-        
     /* Multi-resolution model */
     HLOD multiResoModel;
     multiResoModel.lods[0] = new LOD(level);
@@ -91,6 +72,6 @@ int main(int argc, char *argv[])
     /* Display */
     cout << "\nAdpative LOD Rendering..." << endl;
     
-    Display(multiResoModel, level, texturesPath, isQuant);
+    Display(multiResoModel, level);
     return 0;
 }

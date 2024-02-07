@@ -21,7 +21,6 @@
 #include "Frustum.h"
 #include "BoundingBoxDraw.h"
 #include "Chrono.h"
-#include "File.h"
 
 using namespace std;
 
@@ -32,11 +31,11 @@ static constexpr int SC_MAX_FRAMEBUFFER_HEIGHT = 1080;
 float ComputeMaxDistance(float cubeBottom[3], glm::vec3 viewpoint, glm::mat4 model, glm::mat4 view, float cubeLength);
 
 /* Display function */
-int Display(HLOD &multiResoModel, int maxLevel, vector<string> textures_path, bool quant);
+int Display(HLOD &multiResoModel, int maxLevel);
 
-/* Load the children of cell*/
+/* Load the children of cell */
 int LoadChildCell(int ijk_p[3], LOD *meshbook[], 
-                 glm::mat4 projection, glm::mat4 view, glm::mat4 model, Camera* camera, int level_max, int level_current);
+                 glm::mat4 projection, glm::mat4 view, glm::mat4 model, Camera* camera, int maxLevel, int curLevel);
 
 /* Select the visible cell based on current viewpoint */
 void SelectCellVisbility(LOD *meshbook[], int maxLevel, glm::mat4 model, glm::mat4 view, glm::mat4 projection);

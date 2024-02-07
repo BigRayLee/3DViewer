@@ -17,8 +17,6 @@ struct Cube;
 static constexpr short SC_MAX_LOD_LEVEL = 10;
 
 struct LOD{
-    float min[3]{FLT_MAX, FLT_MAX, FLT_MAX};      /* min value of model*/
-    float max[3]{FLT_MIN, FLT_MIN, FLT_MIN};      /* max value of model*/
     unordered_map<uint64_t,Cube> cubeTable;        /* hashmap between ijk and cell*/
     size_t totalTriCount = 0;
     size_t totalVertCount = 0;
@@ -29,13 +27,15 @@ struct LOD{
 
     LOD(){}                                    /*construction function*/
     LOD(int l);                                /*use level to intialize the LOD*/
-    void SetMeshGrid();                             /*set the length, scale value*/
+    void SetMeshGrid(float max[3], float min[3]);                             /*set the length, scale value*/
     size_t CalculateTriangleCounts();                     /*get the total number of triangle of this level*/
     size_t CalculateVertexCounts();                       /*get the total number of vertex of this level*/
     size_t GetCubeCounts();                         /*get bounding box number*/
 };
 
 struct HLOD{
+    float min[3]{FLT_MAX, FLT_MAX, FLT_MAX};      /* min value of model*/
+    float max[3]{FLT_MIN, FLT_MIN, FLT_MIN};      /* max value of model*/
     LOD *lods[SC_MAX_LOD_LEVEL];
     Mesh data;
     size_t curIdxOffset = 0;

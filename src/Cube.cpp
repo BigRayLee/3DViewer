@@ -10,30 +10,6 @@ void Cube::ComputeBottomVertex(float bottom[3], int ijk[3], float length, float 
     }
 }
 
-uint64_t Cube::GetBoxCoord() const{
-    return ijk_64;
-}
-
-int Cube::GetTriangleCount() const{
-    return triangleCount;
-}
-
-int Cube::GetVertexCount() const {
-    return vertCount;
-}
-
-int Cube::GetIndexCount() const{
-    return triangleCount * 3;
-}
-
-int Cube::GetTextureCount() const {
-    return uvCount;
-}
-
-int Cube::GetTextureIndexCount() const{
-    return idxUVCount;
-}
-
 /*
     Compute the Bounding Box vertex
          F----G

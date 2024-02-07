@@ -301,14 +301,6 @@ void InitParentMeshGrid(LOD *pmg, LOD *mg)
     pmg->level = mg->level - 1;
     pmg->gridSize = mg->gridSize / 2 ;
 
-    pmg->max[0] = mg->max[0];
-    pmg->max[1] = mg->max[1];
-    pmg->max[2] = mg->max[2];
-
-    pmg->min[0] = mg->min[0];
-    pmg->min[1] = mg->min[1];
-    pmg->min[2] = mg->min[2];
-
     pmg->step = mg->step * 0.5f;
     pmg->cubeLength = mg->cubeLength * 2.0f;
 }
@@ -346,9 +338,9 @@ void *BlockSimplification(Parameter &arg, unsigned int block_idx)
     coord_real.z = (bottom.z - arg.simplifyBlks->width / 2);
     
     float block_bottom[3];
-    block_bottom[0] = arg.hlod->lods[arg.curLevel]->min[0] + coord_real.x * extension;
-    block_bottom[1] = arg.hlod->lods[arg.curLevel]->min[1] + coord_real.y * extension;
-    block_bottom[2] = arg.hlod->lods[arg.curLevel]->min[2] + coord_real.z * extension;
+    block_bottom[0] = arg.hlod->min[0] + coord_real.x * extension;
+    block_bottom[1] = arg.hlod->min[1] + coord_real.y * extension;
+    block_bottom[2] = arg.hlod->min[2] + coord_real.z * extension;
     
     /* Mesh simplification */
     size_t unique_vertex_count = meshopt_generateVertexRemap(grid_remap, NULL, blk_data.posCount, blk_data.positions, blk_data.posCount, VERTEX_STRIDE);
@@ -561,7 +553,7 @@ void LODConstructor(HLOD *hlod, int curLevel, int width, float targetError){
     
     /* Compute the bottom vertex of cube for next LOD */
     for (auto &cb : hlod->lods[curLevel + 1]->cubeTable){
-        cb.second.ComputeBottomVertex(cb.second.bottom, cb.second.ijk, hlod->lods[curLevel + 1]->cubeLength, hlod->lods[curLevel + 1]->min);
+        cb.second.ComputeBottomVertex(cb.second.bottom, cb.second.ijk, hlod->lods[curLevel + 1]->cubeLength, hlod->min);
     }
 
     /* For the coarst level, remap is itself */

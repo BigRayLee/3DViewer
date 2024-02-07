@@ -22,8 +22,8 @@ struct BoundingBoxDraw
     ~BoundingBoxDraw();
 
     void InitBuffer(Cube &cube, float length);
-    void SetShader(Shader &bbxShader, glm::mat4 projection, glm::mat4 view, glm::mat4 model);
-    void RenderBiggestBBX(Cube &cube, Shader &bbxShader, float length[3], glm::mat4 projection, glm::mat4 view, glm::mat4 model);
-    void Render(Cube &cube, Shader bbxShader, float length, int level);
+    void SetShader(Shader *bbxShader, glm::mat4 projection, glm::mat4 view, glm::mat4 model);
+    void RenderBiggestBBX(Cube &cube, Shader *bbxShader, float length[3], glm::mat4 projection, glm::mat4 view, glm::mat4 model);
+    void Render(Cube &cube, Shader* bbxShader, float length, int level);
     void FlushBuffer(Cube &cube);
 };

@@ -13,9 +13,11 @@ using namespace std;
 
 struct Cube{
     float bbxVertices[24];                      /* vertex of boundingbox */
-    
     float bottom[3]{FLT_MAX, FLT_MAX, FLT_MAX}; /* left-bottom coordnates logical size*/
     float top[3]{FLT_MIN, FLT_MIN, FLT_MIN};
+
+    int ijk[3];                        /*ijk coordinates*/
+    uint64_t ijk_64;                   /*ijk coordinates in uint_64*/
 
     /* Offsets in vbo */
     size_t vertexOffset = 0;           /* position */
@@ -30,26 +32,11 @@ struct Cube{
     int uvCount = 0;
     int idxUVCount = 0;
     int triangleCount = 0;          /* triangle numbers */
-    
-    uint64_t ijk_64;                   /*ijk coordinates in uint_64*/
-    int ijk[3];                        /*ijk coordinates*/
-
-    /* Operator */
-    bool operator == (Cube bbx){
-        return (this->ijk[0] == bbx.ijk[0] && this->ijk[1] == bbx.ijk[1] && this->ijk[2] == bbx.ijk[2]);
-    }
 
     /* Constructor */
     Cube();
     Cube(float min[3], float max[3]){}
 
     void ComputeBottomVertex(float bottom[3], int ijk[3], float length, float min[3]);
-    uint64_t GetBoxCoord() const;
-    int GetTriangleCount() const;
-    int GetVertexCount() const;
-    int GetTextureCount() const;
-    int GetIndexCount() const;
-    int GetTextureIndexCount() const;
-    
     void CalculateBBXVertex(float length);
 };

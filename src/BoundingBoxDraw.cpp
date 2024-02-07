@@ -30,20 +30,20 @@ void BoundingBoxDraw::InitBuffer(Cube& cube, float length){
     glBindVertexArray(0); 
 }
 
-void BoundingBoxDraw::SetShader(Shader &bbxShader, glm::mat4 projection, glm::mat4 view, glm::mat4 model){
-    bbxShader.Use();
-    bbxShader.SetMat4("projection",projection);
-    bbxShader.SetMat4("view",view);
-    bbxShader.SetMat4("model", model);
+void BoundingBoxDraw::SetShader(Shader *bbxShader, glm::mat4 projection, glm::mat4 view, glm::mat4 model){
+    bbxShader->Use();
+    bbxShader->SetMat4("projection",projection);
+    bbxShader->SetMat4("view",view);
+    bbxShader->SetMat4("model", model);
 }
 
-void BoundingBoxDraw::RenderBiggestBBX(Cube& cube, Shader &bbxShader, float length[3], glm::mat4 projection, glm::mat4 view, glm::mat4 model){
+void BoundingBoxDraw::RenderBiggestBBX(Cube& cube, Shader *bbxShader, float length[3], glm::mat4 projection, glm::mat4 view, glm::mat4 model){
     glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
     
-    bbxShader.Use();
-    bbxShader.SetMat4("projection",projection);
-    bbxShader.SetMat4("view",view);
-    bbxShader.SetMat4("model", model);
+    bbxShader->Use();
+    bbxShader->SetMat4("projection",projection);
+    bbxShader->SetMat4("view",view);
+    bbxShader->SetMat4("model", model);
     
     glLineWidth(2.0f);
 
@@ -52,7 +52,7 @@ void BoundingBoxDraw::RenderBiggestBBX(Cube& cube, Shader &bbxShader, float leng
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
-void BoundingBoxDraw::Render(Cube& cube, Shader bbxShader, float length, int level){
+void BoundingBoxDraw::Render(Cube& cube, Shader* bbxShader, float length, int level){
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     uint64_t ijk_info = (uint64_t) (cube.ijk[0]) | ((uint64_t)(cube.ijk[1])<<16) | ((uint64_t)(cube.ijk[2]) << 32) | ((uint64_t)(level) << 48);
@@ -72,7 +72,7 @@ void BoundingBoxDraw::Render(Cube& cube, Shader bbxShader, float length, int lev
         glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, idxOffset, sizeof(SC_INDICES_BBX), SC_INDICES_BBX);
     }
     
-    bbxShader.Use();
+    bbxShader->Use();
     glBindBuffer(GL_ARRAY_BUFFER, bbxVBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bbxEBO);
     glBindVertexArray(bbxVAO);
