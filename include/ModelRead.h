@@ -13,10 +13,10 @@ using namespace std;
 struct ModelReader{
     float min[3]{FLT_MAX, FLT_MAX, FLT_MAX};    /* Maximum position value */
     float max[3]{FLT_MIN, FLT_MIN, FLT_MIN};    /* Minimum position value */
-    size_t triCount = 0;                              /* number of triangles*/
-    size_t vertCount = 0;                              /* number of vertices*/
+    size_t triCount = 0;                        /* Number of triangles*/
+    size_t vertCount = 0;                       /* Number of vertices*/
     Mesh *meshData = nullptr;          
-    vector<string> texturesPath;               //TODO reserve 
+    vector<string> texturesPath;                // TODO reserve 
     
     ModelReader();  
     ~ModelReader();

@@ -4,8 +4,8 @@ layout (location = 0) in vec3 pos;
 layout (location = 1) in vec3 normal;
 layout (location = 2) in int idx;
 
-layout(std430, binding = 0) restrict readonly buffer positions {float aPos_ssbo[];};
-layout(std430, binding = 1) restrict readonly buffer normals {float aNorm_in_p[];};
+layout(std430, binding = 0) restrict readonly buffer positions {float parentPos[];};
+layout(std430, binding = 1) restrict readonly buffer normals {float parentNormal[];};
 
 layout (std140, binding = 0) uniform Matrices
 {
@@ -18,8 +18,8 @@ struct adaptiveParameters{
     float kappa;
     float sigma;
     vec3 vp;
-    vec3 vp_p;
-    bool freeze_cur_frame;
+    vec3 freezeVp;
+    bool isFreezeFrame;
     bool isAdaptive;
 };
 
@@ -57,8 +57,8 @@ float computeBlend(int level, float kappa, float dis){
 
 void main(){    
     float dis;
-    if(params.freeze_cur_frame){
-        dis = computDis(params.vp_p, pos);
+    if(params.isFreezeFrame){
+        dis = computDis(params.freezeVp, pos);
     }
     else{
         dis = computDis(params.vp, pos);
@@ -70,8 +70,8 @@ void main(){
         uint p = 3 * (idx + parentBase);
         lambda = computeBlend(level, params.kappa, dis);
 
-        gl = lambda * vec4(pos, 1.0) + (1 - lambda) * vec4(aPos_ssbo[p], aPos_ssbo[p + 1], aPos_ssbo[p + 2], 1.0);
-        Normal = lambda * normal + (1 - lambda) * vec3(aNorm_in_p[p], aNorm_in_p[p + 1], aNorm_in_p[p + 2]);
+        gl = lambda * vec4(pos, 1.0) + (1 - lambda) * vec4(parentPos[p], parentPos[p + 1], parentPos[p + 2], 1.0);
+        Normal = lambda * normal + (1 - lambda) * vec3(parentNormal[p], parentNormal[p + 1], parentNormal[p + 2]);
     }   
    
     gl_Position = matrices.projection * matrices.view * matrices.model * gl;

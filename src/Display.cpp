@@ -28,7 +28,7 @@ void SaveScreenshotToFile(std::string filename, int windowWidth, int windowHeigh
 }
 
 
-float ComputeMaxDistance(float cubeBottom[3], glm::vec3 viewpoint, glm::mat4 model, glm::mat4 view, float cubeLength)
+float CalculateDistanceToCube(float cubeBottom[3], glm::vec3 viewpoint, glm::mat4 model, glm::mat4 view, float cubeLength)
 {
     float maxDis = 0.0f;
     glm::vec4 bottom = model * glm::vec4(cubeBottom[0], cubeBottom[1], cubeBottom[2], 1.0f);
@@ -65,7 +65,7 @@ float ComputeMaxDistance(float cubeBottom[3], glm::vec3 viewpoint, glm::mat4 mod
     return maxDis;
 }
 
-int LoadChildCell(int ijk_p[3], LOD *meshbook[],
+int LoadChildCube(int ijk_p[3], LOD *meshbook[],
                   glm::mat4 projection, glm::mat4 view, glm::mat4 model, Camera* camera, int maxLevel, int level_current)
 {
 
@@ -90,7 +90,7 @@ int LoadChildCell(int ijk_p[3], LOD *meshbook[],
                     continue;
 
                 glm::vec3 camera_pos = glm::vec3(camera->position.x, camera->position.y, camera->position.z);
-                float dis = ComputeMaxDistance(mg->cubeTable[ijk].bottom, camera_pos, model, view, mg->cubeLength); 
+                float dis = CalculateDistanceToCube(mg->cubeTable[ijk].bottom, camera_pos, model, view, mg->cubeLength); 
 
                 if (dis >= (viewer->kappa * pow(2, -(mg->level))) || mg->level == maxLevel)
                 {
@@ -101,7 +101,7 @@ int LoadChildCell(int ijk_p[3], LOD *meshbook[],
                 }
                 else
                 {
-                    LoadChildCell(xyz, meshbook, projection, view, model, camera, maxLevel, level_current - 1);
+                    LoadChildCube(xyz, meshbook, projection, view, model, camera, maxLevel, level_current - 1);
                 }
             }
         }
@@ -127,14 +127,14 @@ bool AfterFrustumCulling(Cube &cell, Mat4 pvm)
 }
 
 
-void SelectCellVisbility(LOD *meshbook[], int maxLevel, glm::mat4 model, glm::mat4 view, glm::mat4 projection)
+void SelectCubeVisbility(LOD *meshbook[], int maxLevel, glm::mat4 model, glm::mat4 view, glm::mat4 projection)
 {
     Mat4 pvm = viewer->camera->GlmMat4_to(projection * view * model);
     for (auto &c : meshbook[maxLevel]->cubeTable)
     {
 
         glm::vec3 camera_pos = glm::vec3(viewer->camera->position.x, viewer->camera->position.y, viewer->camera->position.z);
-        float dis = ComputeMaxDistance(c.second.bottom, camera_pos, model, view, meshbook[maxLevel]->cubeLength); // ComputeMaxDistance(bottom_cam, camera.cameraPos, 1.0/meshbook[level-1]->x0[3]); meshbook[level-1]->length c.second.length
+        float dis = CalculateDistanceToCube(c.second.bottom, camera_pos, model, view, meshbook[maxLevel]->cubeLength); // CalculateDistanceToCube(bottom_cam, camera.cameraPos, 1.0/meshbook[level-1]->x0[3]); meshbook[level-1]->length c.second.length
 
         if (dis >= (viewer->kappa * pow(2, -meshbook[maxLevel]->level)) || meshbook[maxLevel]->level == maxLevel)
         {
@@ -145,7 +145,7 @@ void SelectCellVisbility(LOD *meshbook[], int maxLevel, glm::mat4 model, glm::ma
         }
         else
         {
-            LoadChildCell(c.second.ijk, meshbook, projection, view, model, viewer->camera, maxLevel, maxLevel - 1);
+            LoadChildCube(c.second.ijk, meshbook, projection, view, model, viewer->camera, maxLevel, maxLevel - 1);
         }
     }
 }
@@ -308,10 +308,11 @@ int Display(HLOD &multiResModel, int maxLevel)
     /* BBX draw */
     BoundingBoxDraw bbxDrawer;
     bbxDrawer.InitBuffer(multiResModel.lods[maxLevel]->cubeTable[0], multiResModel.lods[maxLevel]->cubeLength);
-    
+
     /* Render loop */
     while (!glfwWindowShouldClose(viewer->window))
     {
+        renderedCubeCount = 0;
         frameCount++;
 
         glClearColor(viewer->imgui->color.x, viewer->imgui->color.y, viewer->imgui->color.z, viewer->imgui->color.w);
@@ -319,6 +320,14 @@ int Display(HLOD &multiResModel, int maxLevel)
         glfwSwapInterval(viewer->imgui->VSync);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glfwWindowHint(GLFW_SAMPLES, 4);
+
+        /* Wireframe mode */
+        if(isEdgeDisplay){
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        }
+        else{
+            glPolygonMode(GL_FRONT_AND_BACK, GL_POLYGON);
+        }
 
         /* Get camera_pos in every frame */
         glm::vec3 camera_pos = glm::vec3(viewer->camera->position.x, viewer->camera->position.y, viewer->camera->position.z);
@@ -367,7 +376,7 @@ int Display(HLOD &multiResModel, int maxLevel)
             renderStack = freezeRenderStack;
         }
         else{
-            SelectCellVisbility(multiResModel.lods, maxLevel, model, view, projection);
+            SelectCubeVisbility(multiResModel.lods, maxLevel, model, view, projection);
         }
 
         /* Store the stack for the freeze frame */

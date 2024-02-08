@@ -2,34 +2,32 @@
 using namespace std;
 
 void ImguiLayer::ImguiInial(GLFWwindow* window){
-    // Imgui context
+    /* Imgui context */
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     io = &ImGui::GetIO();
 	io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
-    // Set color
+    /* Set color */
     ImGui::StyleColorsDark();
 
-    // Set platform/Render Buildings
+    /* Set platform/Render Buildings */ 
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 150");
-    
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 }
 
 void ImguiLayer::ImguiDraw(size_t &tri_num){
-    // Start imgui
+    /* Start imgui */
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    // Draw imgui
+    /* Draw imgui */ 
     ImGui::Begin("Tools");
-    // Draw button
+    /*Draw button */ 
     ImGui::Indent();
 
-    // Multi-Reso control module
+    /* Multi-Reso control module */ 
     ImGui::BulletText("Multi-Reolustion Rendering"); ImGui::SameLine();
     ImGui::Checkbox("", &isMultiReso);
     
@@ -39,12 +37,8 @@ void ImguiLayer::ImguiDraw(size_t &tri_num){
 
     ImGui::Text("\n");
     ImGui::Text("Display Option");    
-    ImGui::Checkbox("show Normal", &isNormalVis);
-
-    ImGui::Checkbox("show Bounding Box", &isNormalVis);
-
+    ImGui::Checkbox("show Bounding Box", &isBBXVis);
     ImGui::Checkbox("show wireframe mode", &isWireframe);
-
     ImGui::Checkbox("LOD Colorized", &isLODColor);
     ImGui::Checkbox("Cube Colorized", &isCubeColor);
 
@@ -59,7 +53,6 @@ void ImguiLayer::ImguiDraw(size_t &tri_num){
     ImGui::Checkbox("VSync", &VSync);
     ImGui::Checkbox("Frustum Culling", &isFrustumCulling);
     ImGui::Checkbox("Smooth Shading", &isSoomthShading);
-    ImGui::Checkbox("Overdraw", &isOverdrawVis);
     
     ImGui::Text("\n");
     ImGui::Text("Render Information:");
@@ -71,8 +64,6 @@ void ImguiLayer::ImguiDraw(size_t &tri_num){
     // ImGui::Text("visbile cells: %d , rendered cells: %d", cell_visible, cell_rendered);
     
     ImGui::Text("rendered cells: %d", renderCubeCount);
-    if(!isOverdrawVis) overdrawRatio = 0.0f;
-    ImGui::Text("Overdraw Ratio: %f", overdrawRatio);
 
     ImGui::Text("\n");
     ImGui::Text("Original Model Information:");
@@ -91,9 +82,9 @@ void ImguiLayer::ImguiDraw(size_t &tri_num){
     // Draw the real-time frametime plot
     static bool animate = true;
     ImGui::Checkbox("Animate", &animate);
-    static float values[90] = { 0 };
+    static float values[90] = { 0.0f };
     static int values_offset = 0;
-    static double refresh_time = 0.0;
+    static float refresh_time = 0.0;
     
     if (!animate || refresh_time == 0.0){
         refresh_time = ImGui::GetTime();
@@ -105,7 +96,7 @@ void ImguiLayer::ImguiDraw(size_t &tri_num){
     {
         static float phase = 0.0f;
         values[values_offset] = 1000.0f / io->Framerate;
-        values_offset = (values_offset+1) % IM_ARRAYSIZE(values);
+        values_offset = (values_offset + 1) % IM_ARRAYSIZE(values);
         phase += 0.10f * values_offset;
         refresh_time += 1.0f * 0.0166667f;
         
@@ -117,7 +108,7 @@ void ImguiLayer::ImguiDraw(size_t &tri_num){
     string plot_str = std::to_string( value_sum/values_offset );
     ImGui::PlotLines("Frame Times", values, IM_ARRAYSIZE(values), values_offset, plot_str.c_str(), 0.0f, 36.00f, ImVec2(0,40));
 
-    // Write the viewer index into data 
+    /* Write the viewer index into data */
     ImGui::Checkbox("Export Data", &isRecordData);
     if(isRecordData){
         out.open("data_val.txt", ios::out|ios::app);

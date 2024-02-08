@@ -12,7 +12,7 @@ constexpr int UV_STRIDE = 2 * sizeof(float);            /* uv stride */
 constexpr int COLOR_STRIDE = 3 * sizeof(unsigned char); /* color stride*/
 
 /* Mesh simplification block size */
-constexpr int SC_BLOCK_SIZE = 4;   
+constexpr int SC_BLOCK_SIZE = 4; 
 
 /* Input mesh model attribute */
 struct ModelAttributesStatus{
@@ -103,10 +103,10 @@ inline void Float2Int(float p[3], int ijk[3], float bottom[3], float step){
 float* ComputeNormal(float* vertices, uint32_t* indices, size_t vertex_count, size_t index_count);
 
 /* Convert the ijk coordinate based on the block size */
-inline bool ConvertBlockCoordinates(Boxcoord& temp, Boxcoord& result, int block_width, int gridSize){
+inline bool ConvertBlockCoordinates(Boxcoord& temp, Boxcoord& result, int block_width, int lodSize){
     bool exist = true;
     if (((temp.x - block_width/2 ) >= 0) && ((temp.y - block_width/2) >= 0) && ((temp.z - block_width/2) >= 0) &&
-        ((temp.x - block_width/2 ) < gridSize) && ((temp.y - block_width/2) < gridSize) && ((temp.z - block_width/2) < gridSize))
+        ((temp.x - block_width/2 ) < lodSize) && ((temp.y - block_width/2) < lodSize) && ((temp.z - block_width/2) < lodSize))
         {
             result.x = temp.x - block_width/2;
             result.y = temp.y - block_width/2;

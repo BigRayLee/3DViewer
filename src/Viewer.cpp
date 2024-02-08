@@ -235,12 +235,12 @@ void Viewer::ProcessInput(GLFWwindow * window){
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
     
-    /*freeze the current frame*/
-    if(glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
+    /* Freeze the current frame*/
+    if(glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
         isFreezeFrame = true;
 
-    /*unfreeze the current frame*/
-    if(glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
+    /* Unfreeze the current frame*/
+    if(glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS)
         isFreezeFrame = false;
        
 }

@@ -27,7 +27,7 @@ out vec4 outColor;
 #define Ks 0.1f
 #define shininess 8
 
-const ivec3 cube_colors[8] = {
+const ivec3 cubeColors[8] = {
 	{120,28,129},
 	{64,67,153},
 	{72,139,194},
@@ -96,7 +96,7 @@ void main(){
     else if(isCubeColorized){
         int idx = 31 * level + 7 * cubeI + 13 * cubeJ + 17 * cubeK;
         idx = idx & 7;
-        vec3 c = vec3(cube_colors[idx]) / 255.f;
+        vec3 c = vec3(cubeColors[idx]) / 255.f;
         outColor = vec4((ambient + diffuse + specular) * c , 1.0f);  
     }
     else{

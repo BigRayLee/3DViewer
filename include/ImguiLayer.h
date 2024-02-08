@@ -26,7 +26,6 @@ struct ImguiLayer
     std::ofstream out;                          /*out file stream */
     
     bool isMultiReso = true;        /* Rendering HLOD model*/
-    bool isNormalVis = false;       /* Draw normals */
     bool isBBXVis = false;          /* Draw boudingbox */
     bool isWireframe = false;       /* Draw edge */
     bool isLODColor = false;        /* Draw color for different LOD */
@@ -36,7 +35,6 @@ struct ImguiLayer
     bool VSync = false;             /* Vsync */
     bool isFrustumCulling = true;   /* Frustum Culling */
     bool isSoomthShading = false;   /* Smooth shadering*/
-    bool isOverdrawVis = false;     /* Depth buffer visualization */
     bool isRecordData = false;      /* Output data*/
     
     ImguiLayer(/* args */);
