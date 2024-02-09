@@ -5,7 +5,6 @@ VPATH = .:src:extern/mesh_simplify:extern/miniply:extern/fast_obj:extern/imgui
 SRC := $(wildcard src/*.cpp)
 SRC := $(SRC) extern/miniply/miniply.cpp 
 SRC := $(SRC) $(wildcard extern/imgui/*.cpp)
-# SRC := $(SRC) $(wildcardextern/mesh_simplify/* .cpp)
 SRC := $(SRC) extern/mesh_simplify/simplifier_mod.cpp 
 SRC := $(SRC) extern/mesh_simplify/indexgenerator.cpp 
 SRC := $(SRC) extern/mesh_simplify/simplify_mod_tex.cpp
@@ -23,7 +22,7 @@ ifdef DEBUG
 	OBJDIR := $(OBJDIR)/debug
 	BINDIR := $(BINDIR)/debug
 else
-	CFLAGS := -O2 -march=x86-64 -DNDEBUG -fopenmp 
+	CFLAGS := -O2 -march=x86-64 -DNDEBUG 
 endif
 
 DEPDIR := $(OBJDIR)/.deps
@@ -33,8 +32,8 @@ OBJECTS  := $(patsubst %.cpp, $(OBJDIR)/%.o, $(notdir $(SRC)))
 DEPFILES := $(patsubst %.cpp, $(DEPDIR)/%.d, $(notdir $(SRC)))
 
 
-LDFLAGS = -lGL -lglfw -ldl -pthread -fopenmp
-CXXFLAGS= -Wall -Wextra -Wpedantic -Wformat -std=c++17 -pthread -fopenmp 
+LDFLAGS = -lGL -lglfw -ldl -pthread 
+CXXFLAGS= -Wall -Wextra -Wpedantic -Wformat -std=c++17 -pthread  
 
 APP = $(BINDIR)/viewer
 
