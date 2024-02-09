@@ -16,7 +16,6 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "LOD.h"
-#include "Debug.h"
 #include "Viewer.h"
 #include "Frustum.h"
 #include "BoundingBoxDraw.h"
@@ -31,10 +30,10 @@ float CalculateDistanceToCube(float cubeBottom[3], glm::vec3 viewpoint, glm::mat
 
 int Display(HLOD &multiResoModel, int maxLevel);
 
-int LoadChildCube(int ijk_p[3], LOD *meshbook[], 
+int LoadChildCube(int parentCoord[3], LOD *meshbook[], 
                  glm::mat4 projection, glm::mat4 view, glm::mat4 model, Camera* camera, int maxLevel, int curLevel);
 
 void SelectCubeVisbility(LOD *meshbook[], int maxLevel, glm::mat4 model, glm::mat4 view, glm::mat4 projection);
 
-bool AfterFrustumCulling(Cube &cell, Mat4 pvm);
+bool AfterFrustumCulling(Cube &cube, Mat4 pvm);
 

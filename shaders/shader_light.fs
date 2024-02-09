@@ -8,9 +8,9 @@ layout (location = 5) in float lambda;
 
 uniform int level;
 uniform int maxLevel;
-uniform int  cubeI;
-uniform int  cubeJ;
-uniform int  cubeK;
+uniform int cubeI;
+uniform int cubeJ;
+uniform int cubeK;
 uniform bool textureExist;
 uniform bool colorExist;
 uniform bool isCubeColorized;
@@ -53,44 +53,41 @@ void main(){
     /*smooth shading*/
     if(isSmoothShading){
         NML = normalize(Normal);
-        if(dot(VIEW, NML) < 0)
+        if(dot(VIEW, NML) < 0.0f)
             NML = -NML;
     }
     else{/*flat shading*/
         NML = normalize(cross(dFdx(ViewDir), dFdy(ViewDir)));
     }
 
-    float Id = max(dot(NML, LIGHT), 0.0);
+    float Id = max(dot(NML, LIGHT), 0.0f);
     vec3 diffuse = Kd * DIFFUSE_COLOR * Id;
 
-    float Is = 1.0;
+    float Is = 1.0f;
     if(Id > 0 ){
         vec3 reflectDir = reflect(-LIGHT, NML);
-        Is = pow(max(dot(reflectDir, VIEW), 0.0), shininess) * shininess / 4;
+        Is = pow(max(dot(reflectDir, VIEW), 0.0f), shininess) * shininess * 0.25f;
     }
     
     vec3 specular = Ks * SPECULAR_COLOR * Is;
-    vec3 full = vec3(0.);
+    vec3 full = vec3(0.0f);
     
     if(isLodColorized){
-        // r g b colors shading 
-        float l = maxLevel - level + (1 - lambda);
+        float l = maxLevel - level + (1.0f - lambda);
         vec3 c = vec3(0.0f);
-        if (l < 1) 
-        {
+        if (l < 1){
             c.r = 1.0f - l;
             c.g = l;
         }
-        else if (l < 2)
-        {
+        else if (l < 2){
             c.g = 2.0f - l;
             c.b = l - 1.0f;
         }
-        else
-        {
+        else{
             c.r = smoothstep(2.0f, 6.0f, l);
             c.b = 1.0f - c.r;
         }
+
         outColor = vec4((ambient + diffuse + specular) * c , 1.0f);
     }
     else if(isCubeColorized){

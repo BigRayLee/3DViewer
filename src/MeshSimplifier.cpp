@@ -10,24 +10,22 @@ unsigned nextIdx;
 
 size_t RemapIndexBufferSkipDegenerate(uint32_t *indices, size_t index_count, const uint32_t *remap)
 {
-    size_t new_index_count = 0;
+    size_t newIdxCount = 0;
 
-    for (size_t i = 0; i < index_count; i += 3)
-    {
+    for (size_t i = 0; i < index_count; i += 3){
         uint32_t i0 = remap[indices[i + 0]];
         uint32_t i1 = remap[indices[i + 1]];
         uint32_t i2 = remap[indices[i + 2]];
 
-        if (i0 != i1 && i0 != i2 && i1 != i2)
-        {
-            indices[new_index_count + 0] = i0;
-            indices[new_index_count + 1] = i1;
-            indices[new_index_count + 2] = i2;
-            new_index_count += 3;
+        if (i0 != i1 && i0 != i2 && i1 != i2){
+            indices[newIdxCount + 0] = i0;
+            indices[newIdxCount + 1] = i1;
+            indices[newIdxCount + 2] = i2;
+            newIdxCount += 3;
         }
     }
 
-    return new_index_count;
+    return newIdxCount;
 }
 
 unsigned LoadBlockData(HLOD *hlod, Boxcoord& blkCoord, int curLevel, int width, unordered_map<uint64_t, pair<size_t, size_t>>& cubeTable, Mesh *destination, bool isGetData){
@@ -39,25 +37,24 @@ unsigned LoadBlockData(HLOD *hlod, Boxcoord& blkCoord, int curLevel, int width, 
     short nx = blkCoord.x;
     short ny = blkCoord.y;
     short nz = blkCoord.z;
-    for (int dx = 0; dx < width; dx++)
-    {
+    for (int dx = 0; dx < width; dx++){
         temp.x = nx + dx;
-        for (int dy = 0; dy < width; dy++)
-        {
+        for (int dy = 0; dy < width; dy++){
             temp.y = ny + dy;
-            for (int dz = 0; dz < width; dz++)
-            {
+            for (int dz = 0; dz < width; dz++){
                 temp.z = nz + dz;
 
                 Boxcoord result;
-                if(!ConvertBlockCoordinates(temp, result, SC_BLOCK_SIZE, hlod->lods[curLevel]->lodSize))
+                if(!ConvertBlockCoordinates(temp, result, SC_BLOCK_SIZE, hlod->lods[curLevel]->lodSize)){
                     continue;
+                }
                 
                 uint64_t ijk = (uint64_t)(result.x) | ((uint64_t)(result.y) << 16) | ((uint64_t)(result.z) << 32);
                 
-                if (hlod->lods[curLevel]->cubeTable.count(ijk) == 0)
+                if (hlod->lods[curLevel]->cubeTable.count(ijk) == 0){
                     continue;
-
+                }
+                    
                 int indexCount = hlod->lods[curLevel]->cubeTable[ijk].triangleCount * 3;
                 int vertexCount = hlod->lods[curLevel]->cubeTable[ijk].vertCount;
 
@@ -65,7 +62,7 @@ unsigned LoadBlockData(HLOD *hlod, Boxcoord& blkCoord, int curLevel, int width, 
                     // Offset of hlod data buffer
                     size_t cubeVertexOffset = hlod->lods[curLevel]->cubeTable[ijk].vertexOffset;
                     size_t cubeIdxOffset = hlod->lods[curLevel]->cubeTable[ijk].idxOffset;
-                    //cout<<"load block "<<indexOffset<<" "<<vertexOffset<<" index count: "<<indexCount<<endl;
+
                     uint32_t *targetIndices = destination->indices + indexOffset;
                     memcpy(targetIndices, &hlod->data.indices[cubeIdxOffset], indexCount * sizeof(uint32_t));
                     
@@ -76,10 +73,6 @@ unsigned LoadBlockData(HLOD *hlod, Boxcoord& blkCoord, int curLevel, int width, 
                     /* position */
                     float *targetPosition = destination->positions + vertexOffset * 3;
                     memcpy(targetPosition, &hlod->data.positions[3 * cubeVertexOffset], vertexCount * VERTEX_STRIDE);
-
-                    // for (size_t i = 0; i < vertexCount * 3; i = i + 3){
-                    //     cout<<targetPosition[i]<<" "<<targetPosition[i + 1]<<" "<<targetPosition[i+2]<<",";
-                    // }
 
                     /* normal */
                     float *targetNormal = destination->normals + vertexOffset * 3;
@@ -179,7 +172,7 @@ unsigned ComputeMaxCounts(HLOD *hlod, int curLevel, Block* blk){
 
     unsigned maxBoxCount = 0;
 
-    unsigned short block_counter = 0;
+    unsigned short blockCount = 0;
 
     unordered_map<uint64_t, pair<size_t, size_t>> cubeTable;
 
@@ -204,24 +197,23 @@ unsigned ComputeMaxCounts(HLOD *hlod, int curLevel, Block* blk){
                 index_count = dest.idxCount;
                 vertex_count = dest.posCount;
 
-                if (modelAttriSatus.hasSingleTexture || modelAttriSatus.hasMultiTexture)
-                {
+                if (modelAttriSatus.hasSingleTexture || modelAttriSatus.hasMultiTexture){
                     index_uv_count = dest.idxUVCount;
                     uv_count = dest.uvCount;
                 }
 
-                if (box_count == 0)
+                if (box_count == 0){
                     continue;
-                
-                blk->list[block_counter] = blkCoord;
-                block_counter++;
+                }
+                    
+                blk->list[blockCount] = blkCoord;
+                blockCount++;
 
                 maxBoxCount = box_count > maxBoxCount ? box_count : maxBoxCount;
                 maxIdxCount = index_count > maxIdxCount ? index_count : maxIdxCount;
                 maxVertexCount = vertex_count > maxVertexCount ? vertex_count : maxVertexCount;
 
-                if (modelAttriSatus.hasSingleTexture || modelAttriSatus.hasMultiTexture)
-                {
+                if (modelAttriSatus.hasSingleTexture || modelAttriSatus.hasMultiTexture){
                     maxIdxUVCount = index_uv_count > maxIdxUVCount ? index_uv_count : maxIdxUVCount;
                     maxUVCount = uv_count > maxUVCount ? uv_count : maxUVCount;
                 }
@@ -230,10 +222,9 @@ unsigned ComputeMaxCounts(HLOD *hlod, int curLevel, Block* blk){
     }
     blk->maxIdxCount = maxIdxCount;
     blk->maxVertexCount = maxVertexCount;
-    blk->validBoxCount = block_counter;
+    blk->validBoxCount = blockCount;
 
-    if (modelAttriSatus.hasSingleTexture || modelAttriSatus.hasMultiTexture)
-    {
+    if (modelAttriSatus.hasSingleTexture || modelAttriSatus.hasMultiTexture){
         blk->maxIdxUVCount = maxIdxUVCount;
         blk->maxUVCount = maxUVCount;
     }
@@ -241,44 +232,16 @@ unsigned ComputeMaxCounts(HLOD *hlod, int curLevel, Block* blk){
     return maxBoxCount;
 }
 
-/* Update position */
-void UpdateVertexParents(void *parents, void *unique_parents, size_t vertex_count, size_t unique_vertex_count,
-                         int vertex_stride, uint32_t *remap, uint32_t *simplificationRemap)
-{
-    for (size_t i = 0; i < vertex_count; ++i)
-    {
+void UpdateVertexParents(void *parents, void *unique_parents, size_t vertex_count, size_t uniqueVertexCount,
+                         int vertex_stride, uint32_t *remap, uint32_t *simplificationRemap){
+    for (size_t i = 0; i < vertex_count; ++i){
         uint32_t j = remap[i];
         uint32_t k = simplificationRemap[j];
         memcpy((unsigned char *)parents + i * vertex_stride, (unsigned char *)unique_parents + k * vertex_stride, vertex_stride);
     }
 }
 
-/* Update the texture coordinates */
-void UpdateUVParents(void *uv_parents, void *unique_uv_parents, size_t uv_count, size_t unique_uv_count,
-                     int uv_stride, uint32_t *grid_remap_uv, uint32_t *simlification_remap_uv)
-{
-    for (size_t i = 0; i < uv_count; ++i)
-    {
-        uint32_t j = grid_remap_uv[i];
-        uint32_t k = simlification_remap_uv[j];
-        memcpy((unsigned char *)uv_parents + i * uv_stride, (unsigned char *)unique_uv_parents + k * uv_stride, uv_stride);
-    }
-}
-
-/* Update color */
-void UpdateColorParents(void *color_parents, void *unique_color_parents, size_t color_count, size_t unique_color_count,
-                        int color_stride, uint32_t *remap, uint32_t *simplificationRemap)
-{
-    for (size_t i = 0; i < color_count; ++i)
-    {
-        uint32_t j = remap[i];
-        uint32_t k = simplificationRemap[j];
-        memcpy((unsigned char *)color_parents + i * color_stride, (unsigned char *)unique_color_parents + k * color_stride, color_stride);
-    }
-}
-
-void InitParentMeshGrid(LOD *pmg, LOD *mg)
-{
+void InitParentMeshGrid(LOD *pmg, LOD *mg){
     pmg->level = mg->level - 1;
     pmg->lodSize = mg->lodSize / 2 ;
 
@@ -286,8 +249,7 @@ void InitParentMeshGrid(LOD *pmg, LOD *mg)
     pmg->cubeLength = mg->cubeLength * 2.0f;
 }
 
-void *BlockSimplification(Parameter &arg, unsigned int block_idx)
-{
+void *BlockSimplification(Parameter &arg, unsigned int block_idx){
     Boxcoord blkCoord = arg.simplifyBlks->list[block_idx];
     
     unordered_map<uint64_t, pair<size_t, size_t>> cubeTable;
@@ -301,12 +263,13 @@ void *BlockSimplification(Parameter &arg, unsigned int block_idx)
 
     unsigned box_count = LoadBlockData(arg.hlod, blkCoord, arg.curLevel, SC_BLOCK_SIZE, cubeTable, &simplifyBlk, true);
 
-    if (!box_count)
+    if (!box_count){
         return NULL;
-
+    }
+        
     float extension = arg.hlod->lods[arg.curLevel]->cubeLength;
     float simplification_error = arg.targetError * extension;
-    float block_extension = 4 * extension;
+    float blockExtension = 4 * extension;
 
     Boxcoord realCoord;
     realCoord.x = (blkCoord.x - arg.simplifyBlks->width / 2);
@@ -324,14 +287,14 @@ void *BlockSimplification(Parameter &arg, unsigned int block_idx)
     uint32_t *simplificationRemap = (uint32_t*)malloc(arg.simplifyBlks->maxVertexCount * sizeof(uint32_t));
     
     /* Mesh simplification */
-    size_t unique_vertex_count = meshopt_generateVertexRemap(remap, NULL, simplifyBlk.posCount, simplifyBlk.positions, simplifyBlk.posCount, VERTEX_STRIDE);
+    size_t uniqueVertexCount = meshopt_generateVertexRemap(remap, NULL, simplifyBlk.posCount, simplifyBlk.positions, simplifyBlk.posCount, VERTEX_STRIDE);
     meshopt_remapVertexBuffer(uniquePositions, simplifyBlk.positions, simplifyBlk.posCount, VERTEX_STRIDE, remap);
     simplifyBlk.idxCount = RemapIndexBufferSkipDegenerate(simplifyBlk.indices, simplifyBlk.idxCount, remap);
-    size_t out_index_count = meshopt_simplify_mod(simplifyBlk.indices, simplificationRemap, simplifyBlk.indices, simplifyBlk.idxCount, uniquePositions,
-                                            unique_vertex_count, VERTEX_STRIDE, simplifyBlk.idxCount / 4, simplification_error, NULL, block_extension, blkBottom);
+    size_t resultIndexCount = meshopt_simplify_mod(simplifyBlk.indices, simplificationRemap, simplifyBlk.indices, simplifyBlk.idxCount, uniquePositions,
+                                            uniqueVertexCount, VERTEX_STRIDE, simplifyBlk.idxCount / 4, simplification_error, NULL, blockExtension, blkBottom);
     
     /* Update and wirte back parent information */
-    UpdateVertexParents(simplifyBlk.positions, uniquePositions, simplifyBlk.posCount, unique_vertex_count, VERTEX_STRIDE, remap, simplificationRemap);
+    UpdateVertexParents(simplifyBlk.positions, uniquePositions, simplifyBlk.posCount, uniqueVertexCount, VERTEX_STRIDE, remap, simplificationRemap);
 
     /* Parent cube construction */
     uint64_t *cubeList = (uint64_t *)malloc(arg.parentBlks->maxBoxCount * sizeof(uint64_t));
@@ -344,13 +307,9 @@ void *BlockSimplification(Parameter &arg, unsigned int block_idx)
     parentBlk.positions = (float *)malloc(arg.parentBlks->maxVertexCount * VERTEX_STRIDE);
     parentBlk.normals = (float *)malloc(arg.parentBlks->maxVertexCount * VERTEX_STRIDE);
     
-    for (unsigned short ix = blkCoord.x; ix < blkCoord.x + SC_BLOCK_SIZE; ix = ix + 2)
-    {
-        for (unsigned short iy = blkCoord.y; iy < blkCoord.y + SC_BLOCK_SIZE; iy = iy + 2)
-        {
-            for (unsigned short iz = blkCoord.z; iz < blkCoord.z + SC_BLOCK_SIZE; iz = iz + 2)
-            {
-
+    for (unsigned short ix = blkCoord.x; ix < blkCoord.x + SC_BLOCK_SIZE; ix = ix + 2){
+        for (unsigned short iy = blkCoord.y; iy < blkCoord.y + SC_BLOCK_SIZE; iy = iy + 2){
+            for (unsigned short iz = blkCoord.z; iz < blkCoord.z + SC_BLOCK_SIZE; iz = iz + 2){
                 Boxcoord parentCoord;
                 parentCoord.x = ix, parentCoord.y = iy, parentCoord.z = iz;
 
@@ -359,11 +318,11 @@ void *BlockSimplification(Parameter &arg, unsigned int block_idx)
 
                 unsigned childCubeCount = LoadChildData(arg.hlod, &simplifyBlk, cubeList, parentCoord, arg.curLevel, cubeTable, &parentBlk);
                 
-                if (!childCubeCount)
+                if (!childCubeCount){
                     continue;
-                //cout<<"parent cube: "<<childCubeCount<<endl;
-                
-                int unique_vertex_count_2 = meshopt_generateVertexRemap(parentRemap, parentBlk.indices, parentBlk.idxCount, parentBlk.positions, parentBlk.posCount, VERTEX_STRIDE);
+                }
+                    
+                int uniqueParentCount = meshopt_generateVertexRemap(parentRemap, parentBlk.indices, parentBlk.idxCount, parentBlk.positions, parentBlk.posCount, VERTEX_STRIDE);
                 meshopt_remapVertexBuffer(unqiueParentPosition, parentBlk.positions, parentBlk.posCount, VERTEX_STRIDE, parentRemap);
                 meshopt_remapVertexBuffer(unqiueParentNormal, parentBlk.normals, parentBlk.posCount, VERTEX_STRIDE, parentRemap);
                 parentBlk.idxCount = RemapIndexBufferSkipDegenerate(parentBlk.indices, parentBlk.idxCount, parentRemap);
@@ -385,34 +344,33 @@ void *BlockSimplification(Parameter &arg, unsigned int block_idx)
 
                 pthread_mutex_lock(&block_index_mutex);
                 {
-                    /* Update cube offset */
                     parentCube.triangleCount = parentBlk.idxCount / 3;
-                    parentCube.vertCount = unique_vertex_count_2;
+                    parentCube.vertCount = uniqueParentCount;
 
                     parentCube.vertexOffset = arg.hlod->curVertOffset;
                     parentCube.idxOffset = arg.hlod->curIdxOffset;
 
                     arg.hlod->curIdxOffset += parentBlk.idxCount;
-                    arg.hlod->curVertOffset += unique_vertex_count_2;
+                    arg.hlod->curVertOffset += uniqueParentCount;
                 }
                 pthread_mutex_unlock(&block_index_mutex);
 
                 arg.hlod->lods[arg.curLevel + 1]->cubeTable.insert(make_pair(ijk_p, parentCube));
 
                 memcpy(&arg.hlod->data.indices[parentCube.idxOffset], parentBlk.indices, parentBlk.idxCount * sizeof(uint32_t));
-                memcpy(&arg.hlod->data.positions[3 * parentCube.vertexOffset], unqiueParentPosition, unique_vertex_count_2 * VERTEX_STRIDE);
-                memcpy(&arg.hlod->data.normals[3 * parentCube.vertexOffset], unqiueParentNormal, unique_vertex_count_2 * VERTEX_STRIDE);
+                memcpy(&arg.hlod->data.positions[3 * parentCube.vertexOffset], unqiueParentPosition, uniqueParentCount * VERTEX_STRIDE);
+                memcpy(&arg.hlod->data.normals[3 * parentCube.vertexOffset], unqiueParentNormal, uniqueParentCount * VERTEX_STRIDE);
 
                 /* Upadate the vertex parent remap */
-                size_t vertex_offset = 0;
+                size_t remapOffset = 0;
                 for (int i = 0; i < childCubeCount; ++i){
                     uint64_t ijk_child = cubeList[i];
                     for (int j = 0; j < arg.hlod->lods[arg.curLevel]->cubeTable[ijk_child].vertCount; ++j){
-                        uint32_t l = j + vertex_offset;
+                        uint32_t l = j + remapOffset;
                         size_t remapOffset = arg.hlod->lods[arg.curLevel]->cubeTable[ijk_child].vertexOffset;
                         arg.hlod->data.remap[remapOffset + j] = parentRemap[l];
                     }
-                    vertex_offset += arg.hlod->lods[arg.curLevel]->cubeTable[ijk_child].vertCount;
+                    remapOffset += arg.hlod->lods[arg.curLevel]->cubeTable[ijk_child].vertCount;
                 }
             }
         }

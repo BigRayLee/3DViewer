@@ -56,9 +56,7 @@ void BoundingBoxDraw::Render(Cube& cube, Shader* bbxShader, float length, int le
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     uint64_t ijk_info = (uint64_t) (cube.ijk[0]) | ((uint64_t)(cube.ijk[1])<<16) | ((uint64_t)(cube.ijk[2]) << 32) | ((uint64_t)(level) << 48);
-    if(vboOffset.count(ijk_info) == 0 && eboOffset.count(ijk_info) == 0)
-    {
-        
+    if(vboOffset.count(ijk_info) == 0 && eboOffset.count(ijk_info) == 0){
         vertexOffset = vertexOffset + 8 * 3 * sizeof(float);
         idxOffset = idxOffset + 24 * sizeof(uint32_t);
         vboOffset.insert(make_pair(ijk_info, vertexOffset));
@@ -79,7 +77,6 @@ void BoundingBoxDraw::Render(Cube& cube, Shader* bbxShader, float length, int le
     
     glLineWidth(2.0);
     glDrawElementsBaseVertex(GL_LINES, 24, GL_UNSIGNED_INT, (GLvoid*)(eboOffset[ijk_info]),  vboOffset[ijk_info]/(3 *sizeof(float)));
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     
     glBindVertexArray(0); 
     glBindBuffer(GL_ARRAY_BUFFER, 0); 

@@ -6,12 +6,12 @@ ModelAttributesStatus modelAttriSatus = {false, false, false, false};
 float* ComputeNormal(float* vertices, uint32_t* indices, size_t vertex_count, size_t index_count){
     float* normals = (float*)malloc(vertex_count * 3 * sizeof(float));
 
-    /* position map */
+    /* Position map */
     uint32_t *remap = (uint32_t*)malloc(vertex_count * sizeof(uint32_t));
     float* unique_vertices = (float*)malloc(vertex_count * sizeof(float) * 3);
     size_t unique_vertex_count = meshopt_generateVertexRemap(remap, NULL, vertex_count, vertices, vertex_count, 3 * sizeof(float));
 
-    /* initialize the normals */
+    /* Initialize the normals */
     for(size_t i = 0; i < 3 * vertex_count; ++i){
         normals[i] = 0.0;
     }
@@ -24,17 +24,14 @@ float* ComputeNormal(float* vertices, uint32_t* indices, size_t vertex_count, si
         
         n = normalized(cross(v2 - v1, v3 - v1));
 
-        //accumulate
         normals[3 * remap[indices[i]]] +=  n.x,     normals[3 * remap[indices[i]] + 1] += n.y,     normals[3 * remap[indices[i]] + 2] += n.z;
         normals[3 * remap[indices[i + 1]]] +=  n.x, normals[3 * remap[indices[i + 1]] + 1] += n.y, normals[3 * remap[indices[i + 1]] + 2] += n.z;
         normals[3 * remap[indices[i + 2]]] +=  n.x, normals[3 * remap[indices[i + 2]] + 1] += n.y, normals[3 * remap[indices[i + 2]] + 2] += n.z;
     }
 
-    for (size_t i = 0; i < vertex_count; ++i)
-	{
+    for (size_t i = 0; i < vertex_count; ++i){
         Vec3 n;
-        if(remap[i] == i)
-		{
+        if(remap[i] == i){
             n.x = normals[3 * i], n.y = normals[3 * i + 1], n.z = normals[3 * i + 2];
         }
         else{
@@ -53,36 +50,24 @@ float* ComputeNormal(float* vertices, uint32_t* indices, size_t vertex_count, si
 
 void GetMaxMin(Vec3 v, float min[3], float max[3])
 {
-    if (v.x < min[0])
-        min[0] = v.x;
-    if (v.x > max[0])
-        max[0] = v.x;
+    if (v.x < min[0]) min[0] = v.x;
+    if (v.x > max[0]) max[0] = v.x;
 
-    if (v.y < min[1])
-        min[1] = v.y;
-    if (v.y > max[1])
-        max[1] = v.y;
+    if (v.y < min[1]) min[1] = v.y;
+    if (v.y > max[1]) max[1] = v.y;
 
-    if (v.z < min[2])
-        min[2] = v.z;
-    if (v.z > max[2])
-        max[2] = v.z;
+    if (v.z < min[2]) min[2] = v.z;
+    if (v.z > max[2]) max[2] = v.z;
 }
 
 void GetMaxMin(float x, float y, float z, float min[3], float max[3])
 {
-    if (x < min[0])
-        min[0] = x;
-    if (x > max[0])
-        max[0] = x;
+    if (x < min[0]) min[0] = x;
+    if (x > max[0]) max[0] = x;
 
-    if (y < min[1])
-        min[1] = y;
-    if (y > max[1])
-        max[1] = y;
+    if (y < min[1]) min[1] = y;
+    if (y > max[1]) max[1] = y;
 
-    if (z < min[2])
-        min[2] = z;
-    if (z > max[2])
-        max[2] = z;
+    if (z < min[2]) min[2] = z;
+    if (z > max[2]) max[2] = z;
 }

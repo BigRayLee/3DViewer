@@ -130,8 +130,7 @@ void Viewer::MouseMove(float px, float py)
 {
 	if (!isMousePressed) return;
 	
-	if (mods & GLFW_MOD_SHIFT)
-	{
+	if (mods & GLFW_MOD_SHIFT){
 		/* Translation in x and y */	
 		float dist = norm(target - camera->get_position());
 		float mult = dist / width;
@@ -142,15 +141,13 @@ void Viewer::MouseMove(float px, float py)
 		camera->set_position(lastCameraPos);
 		camera->translate(trans, Camera::View);
 	}
-	else if (mods & GLFW_MOD_CONTROL)
-	{
+	else if (mods & GLFW_MOD_CONTROL){
 		/* Zoom (translation in target direction) */
 		float mu = SC_ZOOM_SENSITIVITY * (px - lastClickX) / 100;
 		Vec3 new_pos = target + exp(mu) * (lastCameraPos - target);
 		camera->set_position(new_pos);
 	}
-	else /* no modifier */
-	{
+	else /* no modifier */{
 		Vec3 trackball_v = screen_trackball(px, py, width, height);
 		Quat rot = great_circle_rotation(lastTrackballV, trackball_v);
 		/* rot quat is in view frame, back to world frame */
@@ -232,15 +229,18 @@ void Viewer::InitGlfwFunctions(){
 }
 
 void Viewer::ProcessInput(GLFWwindow * window){
-    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-    
+    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS){
+		glfwSetWindowShouldClose(window, true);
+	}
+        
     /* Freeze the current frame*/
-    if(glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
-        isFreezeFrame = true;
-
+    if(glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS){
+		isFreezeFrame = true;
+	}
+        
     /* Unfreeze the current frame*/
-    if(glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS)
-        isFreezeFrame = false;
-       
+    if(glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS){
+		isFreezeFrame = false;
+	}
+      
 }

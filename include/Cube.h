@@ -26,12 +26,11 @@ struct Cube{
     size_t idxOffset = 0;              /* index */
     size_t remapOffset = 0;            /* parent child correspondance */
     size_t colorOffset = 0;            /* color */
-
-    /* New data offset */
+    
     int vertCount = 0;
     int uvCount = 0;
     int idxUVCount = 0;
-    int triangleCount = 0;          /* triangle numbers */
+    int triangleCount = 0;             /* triangle numbers */
 
     /* Constructor */
     Cube();

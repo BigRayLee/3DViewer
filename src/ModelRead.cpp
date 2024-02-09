@@ -287,7 +287,7 @@ int ModelReader::ObjParser(const char *fileName)
         meshopt_remapIndexBuffer(meshData->indicesUV, NULL, index_count, remap_tex);
         meshopt_remapVertexBuffer(meshData->uvs, meshData->uvs, index_count, sizeof(float) * 2, remap_tex);
 
-        /*realloc the size*/
+        /* Realloc the size*/
         meshData->uvs = (float *)realloc(meshData->uvs, 2 * texture_count * sizeof(float));
 
         MemoryFree(remap_tex);
@@ -300,7 +300,7 @@ int ModelReader::ObjParser(const char *fileName)
         meshopt_remapIndexBuffer(meshData->indicesUV, NULL, index_count, remap_tex);
         meshopt_remapVertexBuffer(meshData->uvs, meshData->uvs, index_count, sizeof(float) * 2, remap_tex);
 
-        /*realloc the size*/
+        /* Realloc the size */
         meshData->uvs = (float *)realloc(meshData->uvs, 2 * texture_count * sizeof(float));
 
         MemoryFree(remap_tex);

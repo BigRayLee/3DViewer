@@ -34,125 +34,103 @@ float CalculateDistanceToCube(float cubeBottom[3], glm::vec3 viewpoint, glm::mat
     glm::vec4 bottom = model * glm::vec4(cubeBottom[0], cubeBottom[1], cubeBottom[2], 1.0f);
     glm::vec4 length = model * glm::vec4(cubeLength, cubeLength, cubeLength, 1.0f);
 
-    // x
-    float disX = 0.0;
-    if (viewpoint.x < bottom.x)
-        disX = abs(bottom.x - viewpoint.x);
-    else if (viewpoint.x > bottom.x + length[0])
-        disX = abs(viewpoint.x - bottom.x - length[0]);
-    else
-        disX = 0.0;
+    float disX = 0.0f;
+    if (viewpoint.x < bottom.x) disX = abs(bottom.x - viewpoint.x);
+    else if (viewpoint.x > bottom.x + length[0]) disX = abs(viewpoint.x - bottom.x - length[0]);
+    else disX = 0.0f;
 
     // y
-    float disY = 0.0;
-    if (viewpoint.y < bottom.y)
-        disY = abs(bottom.y - viewpoint.y);
-    else if (viewpoint.y > bottom.y + length[1])
-        disY = abs(viewpoint.y - bottom.y - length[1]);
-    else
-        disY = 0.0;
+    float disY = 0.0f;
+    if (viewpoint.y < bottom.y) disY = abs(bottom.y - viewpoint.y);
+    else if (viewpoint.y > bottom.y + length[1]) disY = abs(viewpoint.y - bottom.y - length[1]);
+    else disY = 0.0f;
 
     // z
-    float disZ = 0.0;
-    if (viewpoint.z < bottom.z)
-        disZ = abs(bottom.z - viewpoint.z);
-    else if (viewpoint.z > bottom.z + length[2])
-        disZ = abs(viewpoint.z - bottom.z - length[2]);
-    else
-        disZ = 0.0;
+    float disZ = 0.0f;
+    if (viewpoint.z < bottom.z) disZ = abs(bottom.z - viewpoint.z);
+    else if (viewpoint.z > bottom.z + length[2]) disZ = abs(viewpoint.z - bottom.z - length[2]);
+    else disZ = 0.0f;
 
     maxDis = max(max(disX, disY), disZ);
     return maxDis;
 }
 
-int LoadChildCube(int ijk_p[3], LOD *meshbook[],
-                  glm::mat4 projection, glm::mat4 view, glm::mat4 model, Camera* camera, int maxLevel, int level_current)
-{
+int LoadChildCube(int parentCoord[3], LOD *meshbook[],
+                  glm::mat4 projection, glm::mat4 view, glm::mat4 model, Camera* camera, int maxLevel, int curLevel){
+    if (curLevel < 0) return -1;
 
-    if (level_current < 0)
-        return -1;
-    LOD *mg = meshbook[level_current];
+    LOD *mg = meshbook[curLevel];
     Mat4 pvm = viewer->camera->GlmMat4_to(projection * view * model);
 
-    /*load the child of cell*/
     int xyz[3];
-    for (int ix = 0; ix < 2; ix++)
-    {
-        xyz[0] = ijk_p[0] * 2 + ix;
-        for (int iy = 0; iy < 2; iy++)
-        {
-            xyz[1] = ijk_p[1] * 2 + iy;
-            for (int iz = 0; iz < 2; iz++)
-            {
-                xyz[2] = ijk_p[2] * 2 + iz;
+    for (int ix = 0; ix < 2; ix++){
+        xyz[0] = parentCoord[0] * 2 + ix;
+        for (int iy = 0; iy < 2; iy++){
+            xyz[1] = parentCoord[1] * 2 + iy;
+            for (int iz = 0; iz < 2; iz++){
+                xyz[2] = parentCoord[2] * 2 + iz;
                 uint64_t ijk = (uint64_t)(xyz[0]) | ((uint64_t)(xyz[1]) << 16) | ((uint64_t)(xyz[2]) << 32);
-                if (mg->cubeTable.count(ijk) == 0)
+                
+                if (mg->cubeTable.count(ijk) == 0){
                     continue;
+                }
+                    
+                glm::vec3 cameraPos = glm::vec3(camera->position.x, camera->position.y, camera->position.z);
+                float dis = CalculateDistanceToCube(mg->cubeTable[ijk].bottom, cameraPos, model, view, mg->cubeLength); 
 
-                glm::vec3 camera_pos = glm::vec3(camera->position.x, camera->position.y, camera->position.z);
-                float dis = CalculateDistanceToCube(mg->cubeTable[ijk].bottom, camera_pos, model, view, mg->cubeLength); 
-
-                if (dis >= (viewer->kappa * pow(2, -(mg->level))) || mg->level == maxLevel)
-                {
-                    if (AfterFrustumCulling(mg->cubeTable[ijk], pvm))
-                    {
+                if (dis >= (viewer->kappa * pow(2, -(mg->level))) || mg->level == maxLevel){
+                    if (AfterFrustumCulling(mg->cubeTable[ijk], pvm)){
                         renderStack.push(make_pair(mg->level, ijk));
                     }
                 }
-                else
-                {
-                    LoadChildCube(xyz, meshbook, projection, view, model, camera, maxLevel, level_current - 1);
+                else{
+                    LoadChildCube(xyz, meshbook, projection, view, model, camera, maxLevel, curLevel - 1);
                 }
+
             }
         }
     }
     return 0;
 }
 
-bool AfterFrustumCulling(Cube &cell, Mat4 pvm)
+bool AfterFrustumCulling(Cube &cube, Mat4 pvm)
 {
     Aabb bbox;
-    bbox.min.x = cell.bottom[0];
-    bbox.min.y = cell.bottom[1];
-    bbox.min.z = cell.bottom[2];
-    bbox.max.x = cell.top[0];
-    bbox.max.y = cell.top[1];
-    bbox.max.z = cell.top[2];
+    bbox.min.x = cube.bottom[0];
+    bbox.min.y = cube.bottom[1];
+    bbox.min.z = cube.bottom[2];
+    bbox.max.x = cube.top[0];
+    bbox.max.y = cube.top[1];
+    bbox.max.z = cube.top[2];
 
     int visible = is_visible(bbox, &pvm(0, 0));
-    if (visible != 0)
-        return true;
-    else
-        return false;
+    if (visible != 0) return true;
+    else return false;
 }
 
 
 void SelectCubeVisbility(LOD *meshbook[], int maxLevel, glm::mat4 model, glm::mat4 view, glm::mat4 projection)
 {
     Mat4 pvm = viewer->camera->GlmMat4_to(projection * view * model);
-    for (auto &c : meshbook[maxLevel]->cubeTable)
-    {
+    for (auto &c : meshbook[maxLevel]->cubeTable){
 
-        glm::vec3 camera_pos = glm::vec3(viewer->camera->position.x, viewer->camera->position.y, viewer->camera->position.z);
-        float dis = CalculateDistanceToCube(c.second.bottom, camera_pos, model, view, meshbook[maxLevel]->cubeLength); // CalculateDistanceToCube(bottom_cam, camera.cameraPos, 1.0/meshbook[level-1]->x0[3]); meshbook[level-1]->length c.second.length
+        glm::vec3 cameraPos = glm::vec3(viewer->camera->position.x, viewer->camera->position.y, viewer->camera->position.z);
+        float dis = CalculateDistanceToCube(c.second.bottom, cameraPos, model, view, meshbook[maxLevel]->cubeLength); // CalculateDistanceToCube(bottom_cam, camera.cameraPos, 1.0/meshbook[level-1]->x0[3]); meshbook[level-1]->length c.second.length
 
-        if (dis >= (viewer->kappa * pow(2, -meshbook[maxLevel]->level)) || meshbook[maxLevel]->level == maxLevel)
-        {
-            if (AfterFrustumCulling(c.second, pvm))
-            {
+        if (dis >= (viewer->kappa * pow(2, -meshbook[maxLevel]->level)) || meshbook[maxLevel]->level == maxLevel){
+            if (AfterFrustumCulling(c.second, pvm)){
                 renderStack.push(make_pair(meshbook[maxLevel]->level, c.first));
             }
         }
-        else
-        {
+        else{
             LoadChildCube(c.second.ijk, meshbook, projection, view, model, viewer->camera, maxLevel, maxLevel - 1);
         }
+
     }
 }
 
 void ObjectBufferInit(Mesh& data){
     /* Position */
-    
     glGenBuffers(1, &pos);
     glBindBuffer(GL_ARRAY_BUFFER, pos);
     glBufferData(GL_ARRAY_BUFFER, data.posCount * VERTEX_STRIDE, &(data.positions[0]), GL_STATIC_DRAW);
@@ -176,7 +154,6 @@ void ObjectBufferInit(Mesh& data){
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, data.idxCount * sizeof(uint32_t), &(data.indices[0]), GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    
     glGenBuffers(1, &uv);
     glGenBuffers(1, &clr);
 }
@@ -220,13 +197,16 @@ void BindVAOBuffer(GLuint &vao)
 
 int Display(HLOD &multiResModel, int maxLevel)
 {
+    glm::mat4 modelMat(1.0f);
     Shader *shader = new Shader();
     Shader *bbxShader = new Shader();
+    BoundingBoxDraw* bbxDrawer = new BoundingBoxDraw();
     string vs_shader = "./shaders/shader_default.vs";
     string fs_shader = "./shaders/shader_light.fs";
     float maxModelSize = multiResModel.lods[maxLevel]->cubeLength;
-    GLuint vao;                  /* defualt VAO */
-    int frameCount = 0;          /* Screen shoot counter */
+    GLuint vao;                   /* defualt VAO */
+    GLuint uboMatices;            /* Uniform matrices */
+    int frameCount = 0;           /* Screen shoot counter */
     int renderedCubeCount = 0; 
 
     bool isNormalVis = false;
@@ -235,7 +215,7 @@ int Display(HLOD &multiResModel, int maxLevel)
     bool isLodColorized = false;
     bool isCubeColorized = false;
     bool isAdaptive = true;
-    
+
     /* Init the glfw init */
     viewer->InitGlfwFunctions();
 
@@ -278,7 +258,6 @@ int Display(HLOD &multiResModel, int maxLevel)
     glUniformBlockBinding(bbxShader->ID, uniformBlockIndexBBX, 0);
     
     /* Uniform matrices generation */
-    GLuint uboMatices;
     glGenBuffers(1, &uboMatices);
     glBindBuffer(GL_UNIFORM_BUFFER, uboMatices);
     glBufferData(GL_UNIFORM_BUFFER, 3 * sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
@@ -286,32 +265,31 @@ int Display(HLOD &multiResModel, int maxLevel)
     glBindBufferRange(GL_UNIFORM_BUFFER, 0, uboMatices, 0, 3 * sizeof(glm::mat4));
 
     /* Calculate model center */
-    glm::mat4 model(1.0f);
     viewer->scale = 1.0f / maxModelSize;
-    model = glm::scale(model, glm::vec3(viewer->scale));
+    modelMat = glm::scale(modelMat, glm::vec3(viewer->scale));
 
-    glm::vec3 model_center = glm::vec3((multiResModel.max[0] + multiResModel.min[0]) * 0.5f,
-                                       (multiResModel.max[1] + multiResModel.min[1]) * 0.5f,
-                                       (multiResModel.max[2] + multiResModel.min[2]) * 0.5f);
+    glm::vec3 center = glm::vec3((multiResModel.max[0] + multiResModel.min[0]) * 0.5f,
+                                 (multiResModel.max[1] + multiResModel.min[1]) * 0.5f,
+                                 (multiResModel.max[2] + multiResModel.min[2]) * 0.5f);
 
-    glm::vec4 model_center_c = model * glm::vec4(model_center, 1.0);
+    glm::vec4 cameraTarget = modelMat * glm::vec4(center, 1.0);
     
-    viewer->camera->set_position(Vec3(model_center_c.x, model_center_c.y, model_center_c.z) + Vec3(0.0, 0.0, 3 * viewer->scale * maxModelSize));
+    viewer->camera->set_position(Vec3(cameraTarget.x, cameraTarget.y, cameraTarget.z) + Vec3(0.0f, 0.0f, 3.0f * viewer->scale * maxModelSize));
     viewer->camera->set_near(0.0001 * viewer->scale * maxModelSize);
-    viewer->camera->set_far(100 * viewer->scale * maxModelSize);
-    viewer->target = Vec3(model_center_c.x, model_center_c.y, model_center_c.z);
+    viewer->camera->set_far(100.0f * viewer->scale * maxModelSize);
+    viewer->target = Vec3(cameraTarget.x, cameraTarget.y, cameraTarget.z);
 
     /* Progressive buffer */
     viewer->kappa = viewer->imgui->kappa;
     viewer->sigma = viewer->imgui->sigma;
 
-    /* BBX draw */
-    BoundingBoxDraw bbxDrawer;
-    bbxDrawer.InitBuffer(multiResModel.lods[maxLevel]->cubeTable[0], multiResModel.lods[maxLevel]->cubeLength);
+    /* BbxDrawer initialization */
+    bbxDrawer->InitBuffer(multiResModel.lods[maxLevel]->cubeTable[0], multiResModel.lods[maxLevel]->cubeLength);
 
     /* Render loop */
     while (!glfwWindowShouldClose(viewer->window))
     {
+        renderedTriSum = 0; 
         renderedCubeCount = 0;
         frameCount++;
 
@@ -329,8 +307,8 @@ int Display(HLOD &multiResModel, int maxLevel)
             glPolygonMode(GL_FRONT_AND_BACK, GL_POLYGON);
         }
 
-        /* Get camera_pos in every frame */
-        glm::vec3 camera_pos = glm::vec3(viewer->camera->position.x, viewer->camera->position.y, viewer->camera->position.z);
+        /* Get camera position in every frame */
+        glm::vec3 cameraPos = glm::vec3(viewer->camera->position.x, viewer->camera->position.y, viewer->camera->position.z);
 
         /* Time recording for the mouse operation */
         float currentFrame = glfwGetTime();
@@ -345,25 +323,26 @@ int Display(HLOD &multiResModel, int maxLevel)
         glm::mat4 view = viewer->camera->Mat4_to(vm);
 
         glm::mat4 projection = viewer->camera->Mat4_to(proj);
-        Mat4 pvm = viewer->camera->GlmMat4_to(projection * view * model);
+        Mat4 pvm = viewer->camera->GlmMat4_to(projection * view * modelMat);
 
         /* Matrices uniform buffer */
         glBindBuffer(GL_UNIFORM_BUFFER, uboMatices);
         glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(projection));
         glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(view));
-        glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(model));
+        glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(modelMat));
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
         /* Setting shaders */
         shader->Use();
         shader->SetFloat("params.kappa", viewer->kappa);
         shader->SetFloat("params.sigma", viewer->sigma);
-        shader->SetVec3("params.vp", camera_pos);
+        shader->SetVec3("params.vp", cameraPos);
         shader->SetVec3("params.freezeVp", freezeVp);
         shader->SetBool("params.isFreezeFrame", viewer->isFreezeFrame);
         shader->SetBool("params.isAdaptive", isAdaptive);
         shader->SetInt("maxLevel", maxLevel);
 
+        /* Screen shot */
         if (viewer->imgui->isSavePic)
         {
             string screen_shot_name = "./pic/" + to_string(frameCount) + ".tga";
@@ -376,7 +355,7 @@ int Display(HLOD &multiResModel, int maxLevel)
             renderStack = freezeRenderStack;
         }
         else{
-            SelectCubeVisbility(multiResModel.lods, maxLevel, model, view, projection);
+            SelectCubeVisbility(multiResModel.lods, maxLevel, modelMat, view, projection);
         }
 
         /* Store the stack for the freeze frame */
@@ -397,11 +376,11 @@ int Display(HLOD &multiResModel, int maxLevel)
             size_t parentOffset = 0;
             
             if (curLevel != 0){
-                uint ijk_parent[3];
-                ijk_parent[0] = multiResModel.lods[maxLevel - curLevel]->cubeTable[curCubeIdx].ijk[0] / 2;
-                ijk_parent[1] = multiResModel.lods[maxLevel - curLevel]->cubeTable[curCubeIdx].ijk[1] / 2;
-                ijk_parent[2] = multiResModel.lods[maxLevel - curLevel]->cubeTable[curCubeIdx].ijk[2] / 2;
-                uint64_t ijk_p = (uint64_t)(ijk_parent[0]) | ((uint64_t)(ijk_parent[1]) << 16) | ((uint64_t)(ijk_parent[2]) << 32);
+                uint parentCoord[3];
+                parentCoord[0] = multiResModel.lods[maxLevel - curLevel]->cubeTable[curCubeIdx].ijk[0] / 2;
+                parentCoord[1] = multiResModel.lods[maxLevel - curLevel]->cubeTable[curCubeIdx].ijk[1] / 2;
+                parentCoord[2] = multiResModel.lods[maxLevel - curLevel]->cubeTable[curCubeIdx].ijk[2] / 2;
+                uint64_t ijk_p = (uint64_t)(parentCoord[0]) | ((uint64_t)(parentCoord[1]) << 16) | ((uint64_t)(parentCoord[2]) << 32);
                 parentOffset = multiResModel.lods[maxLevel - curLevel + 1]->cubeTable[ijk_p].vertexOffset * VERTEX_STRIDE;
             }
             else{
@@ -423,21 +402,20 @@ int Display(HLOD &multiResModel, int maxLevel)
             shader->SetInt("cubek", multiResModel.lods[maxLevel - curLevel]->cubeTable[curCubeIdx].ijk[2]);
             
             glDrawElementsBaseVertex(GL_TRIANGLES,
-                                        multiResModel.lods[maxLevel - curLevel]->cubeTable[curCubeIdx].triangleCount * 3,
-                                        GL_UNSIGNED_INT,
-                                        (void *)(indexOffset),
-                                        vertexOffset / (3 * sizeof(float)));
+                                     multiResModel.lods[maxLevel - curLevel]->cubeTable[curCubeIdx].triangleCount * 3,
+                                     GL_UNSIGNED_INT,
+                                     (void *)(indexOffset),
+                                     vertexOffset / (3 * sizeof(float)));
 
             glBindVertexArray(0);
 
-            /*calculate the number of traingles*/
+            /* Calculate the number of traingles */
             renderedTriSum += multiResModel.lods[maxLevel - curLevel]->cubeTable[curCubeIdx].triangleCount * 3;
 
-            /*bbx render*/
-            if (isBbxDisplay)
-            {
+            /* BBX render*/
+            if (isBbxDisplay){
                 bbxShader->Use();
-                bbxDrawer.Render(multiResModel.lods[maxLevel - curLevel]->cubeTable[curCubeIdx], bbxShader, multiResModel.lods[maxLevel - curLevel]->cubeLength, multiResModel.lods[maxLevel - curLevel]->level);
+                bbxDrawer->Render(multiResModel.lods[maxLevel - curLevel]->cubeTable[curCubeIdx], bbxShader, multiResModel.lods[maxLevel - curLevel]->cubeLength, multiResModel.lods[maxLevel - curLevel]->level);
             }
 
             renderedCubeCount++;
@@ -465,9 +443,6 @@ int Display(HLOD &multiResModel, int maxLevel)
         /* Imgui rendering */
         viewer->imgui->ImguiRender();
 
-        renderedTriSum = 0;
-
-        /* glfw swap buffers and IO events */
         glfwSwapBuffers(viewer->window);
         glfwPollEvents();
     }

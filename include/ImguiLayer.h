@@ -37,7 +37,7 @@ struct ImguiLayer
     bool isSoomthShading = false;   /* Smooth shadering*/
     bool isRecordData = false;      /* Output data*/
     
-    ImguiLayer(/* args */);
+    ImguiLayer();
     ~ImguiLayer();
 
     void ImguiInial(GLFWwindow* window);    /* Imgui setup function */
