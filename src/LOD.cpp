@@ -159,7 +159,7 @@ void HLOD::BuildLODFromInput(Mesh* rawMesh, size_t vertCount, size_t triCount){
         size_t cubeIdxOffset = cube.second.idxOffset;
 
         memset(remap, 0, maxIdxCount * sizeof(uint32_t));
-        /* Get the vertex data */
+
         /* Position */
         for(int i = 0; i < cube.second.triangleCount * 3; ++i){
             memcpy(verts + 3 * i, &rawMesh->positions[3 * data.indices[cubeIdxOffset + i]], VERTEX_STRIDE);
