@@ -30,37 +30,37 @@ size_t LOD::CalculateVertexCounts(){
 }
 
 void Dispatch(int xyz[3], unordered_map<uint64_t,Cube >&table){
-    uint64_t ijk = (uint64_t)(xyz[0]) | ((uint64_t)(xyz[1]) << 16) | ((uint64_t)(xyz[2]) << 32);
+    uint64_t coord = (uint64_t)(xyz[0]) | ((uint64_t)(xyz[1]) << 16) | ((uint64_t)(xyz[2]) << 32);
     if UNLIKELY(table.size() == 0){
         Cube cube;
-        cube.ijk[0] = xyz[0];
-        cube.ijk[1] = xyz[1];
-        cube.ijk[2] = xyz[2];
+        cube.coord[0] = xyz[0];
+        cube.coord[1] = xyz[1];
+        cube.coord[2] = xyz[2];
 
-        cube.ijk_64 = ijk;
+        cube.coord64 = coord;
 
         cube.triangleCount += 1;
 
-        pair<uint64_t, Cube> p(ijk, cube);
+        pair<uint64_t, Cube> p(coord, cube);
         table.insert(p);
     }
     else{
-        unordered_map<uint64_t, Cube>::const_iterator got = table.find(ijk);
-        if (table.count(ijk) == 0){
+        unordered_map<uint64_t, Cube>::const_iterator got = table.find(coord);
+        if (table.count(coord) == 0){
             Cube cube;
-            cube.ijk[0] = xyz[0];
-            cube.ijk[1] = xyz[1];
-            cube.ijk[2] = xyz[2];
+            cube.coord[0] = xyz[0];
+            cube.coord[1] = xyz[1];
+            cube.coord[2] = xyz[2];
 
             cube.triangleCount += 1;
 
-            cube.ijk_64 = ijk;
+            cube.coord64 = coord;
 
-            pair<uint64_t, Cube> p(ijk, cube);
+            pair<uint64_t, Cube> p(coord, cube);
             table.insert(p);
         }
         else{
-            table[ijk].triangleCount += 1;
+            table[coord].triangleCount += 1;
         }
     }
 }
@@ -93,15 +93,15 @@ void HLOD::BuildLODFromInput(Mesh* rawMesh, size_t vertCount, size_t triCount){
         v3.x = rawMesh->positions[3 * rawMesh->indices[i + 2]], v3.y = rawMesh->positions[3 * rawMesh->indices[i + 2] + 1], v3.z = rawMesh->positions[3 * rawMesh->indices[i + 2] + 2];
         CalculateBarycenter(v1, v2, v3, ct);
         
-        /* Assign the traingle to the ijk cube */
-        int ijk[3];
-        Float2Int(ct, ijk, min, lods[0]->step);
+        /* Assign the traingle to the coord cube */
+        int coord[3];
+        Float2Int(ct, coord, min, lods[0]->step);
 
         /* Dispatch the triangle */
-        Dispatch(ijk, lods[0]->cubeTable);
+        Dispatch(coord, lods[0]->cubeTable);
 
-        uint64_t ijk_64 = (uint64_t)(ijk[0]) | ((uint64_t)(ijk[1]) << 16) | ((uint64_t)(ijk[2]) << 32);
-        triangleToCube[i / 3] = ijk_64;
+        uint64_t coord64 = (uint64_t)(coord[0]) | ((uint64_t)(coord[1]) << 16) | ((uint64_t)(coord[2]) << 32);
+        triangleToCube[i / 3] = coord64;
     }
     end = clock();
     std::cout << "dispatch time : " << double(end - start) / CLOCKS_PER_SEC << endl;
@@ -180,22 +180,20 @@ void HLOD::BuildLODFromInput(Mesh* rawMesh, size_t vertCount, size_t triCount){
         int uniqueVertCount = meshopt_generateVertexRemap(remap, &data.indices[cubeIdxOffset], vertCount, verts, vertCount, VERTEX_STRIDE);
         meshopt_remapVertexBuffer(uniqueVerts, verts, vertCount, VERTEX_STRIDE, remap);
         meshopt_remapVertexBuffer(uniqueNormals, normals, vertCount, VERTEX_STRIDE, remap);
-        //meshopt_remapIndexBuffer(&data.indices[cubeIdxOffset], NULL, cube.second.triangleCount * 3, remap);
 
         size_t new_index_count = 0;
-        for (size_t i = 0; i < cube.second.triangleCount * 3; i += 3)
-        {
+        for (size_t i = 0; i < cube.second.triangleCount * 3; i += 3){
             uint32_t i0 = remap[data.indices[cubeIdxOffset + i]];
             uint32_t i1 = remap[data.indices[cubeIdxOffset + i + 1]];
             uint32_t i2 = remap[data.indices[cubeIdxOffset + i + 2]];
 
-            if (i0 != i1 && i0 != i2 && i1 != i2)
-            {
+            if (i0 != i1 && i0 != i2 && i1 != i2){
                 data.indices[cubeIdxOffset + new_index_count + 0] = i0;
                 data.indices[cubeIdxOffset + new_index_count + 1] = i1;
                 data.indices[cubeIdxOffset + new_index_count + 2] = i2;
                 new_index_count += 3;
             }
+
         }
 
         /* Copy data */
@@ -216,15 +214,14 @@ void HLOD::BuildLODFromInput(Mesh* rawMesh, size_t vertCount, size_t triCount){
         totalVertCount += uniqueVertCount;
         cube.second.triangleCount = new_index_count / 3;
 
-        /* Compute the Cube bottom point assign the ijk to the bounding box and the cube */
-        cube.second.ComputeBottomVertex(cube.second.bottom, cube.second.ijk, lods[0]->cubeLength, min);
-        cube.second.ijk_64 = cube.first;
+        /* Compute the Cube bottom point assign the coord to the bounding box and the cube */
+        cube.second.ComputeBottomVertex(cube.second.bottom, cube.second.coord, lods[0]->cubeLength, min);
+        cube.second.coord64 = cube.first;
     }
     end = clock();
 
     /* If level = 0 remap to itself child-parent map */
-    if (lods[0]->level == 0)
-    {
+    if (lods[0]->level == 0){
         for (int i = 0; i < lods[0]->cubeTable[0].vertCount; ++i)
             data.remap[lods[0]->cubeTable[0].vertexOffset + i] = i;
     }

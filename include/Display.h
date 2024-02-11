@@ -23,9 +23,6 @@
 
 using namespace std;
 
-static constexpr int SC_MAX_FRAMEBUFFER_WIDTH = 1920;
-static constexpr int SC_MAX_FRAMEBUFFER_HEIGHT = 1080;
-
 float CalculateDistanceToCube(float cubeBottom[3], glm::vec3 viewpoint, glm::mat4 model, glm::mat4 view, float cubeLength);
 
 int Display(HLOD &multiResoModel, int maxLevel);

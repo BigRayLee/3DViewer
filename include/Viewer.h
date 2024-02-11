@@ -14,7 +14,7 @@ namespace NavMode {
 };
 
 struct Viewer {
-	/* Camera manipulation */
+	/* Camera */
 	Quat  lastCameraRot;
 	Vec3  lastCameraPos;
 	Vec3  lastTrackballV;
@@ -37,7 +37,7 @@ struct Viewer {
     float scale = 1.0f;                  /* model scale */
 	int width;                           /* TODO viewport instead */
 	int height;
-	uint32_t nav_mode = NavMode::Orbit;  /* Mode */
+	uint32_t navMode = NavMode::Orbit;  /* Mode */
 	bool isFreezeFrame = false;          /* freeze the frame */
 	bool isMousePressed = false;
 

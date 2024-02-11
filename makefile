@@ -7,11 +7,6 @@ SRC := $(SRC) extern/miniply/miniply.cpp
 SRC := $(SRC) $(wildcard extern/imgui/*.cpp)
 SRC := $(SRC) extern/mesh_simplify/simplifier_mod.cpp 
 SRC := $(SRC) extern/mesh_simplify/indexgenerator.cpp 
-SRC := $(SRC) extern/mesh_simplify/simplify_mod_tex.cpp
-SRC := $(SRC) extern/mesh_simplify/vcacheanalyzer.cpp
-SRC := $(SRC) extern/mesh_simplify/vcacheoptimizer.cpp
-SRC := $(SRC) extern/mesh_simplify/overdrawoptimizer.cpp
-SRC := $(SRC) extern/mesh_simplify/vfetchoptimizer.cpp
 
 INCLUDE = -I include -I extern -I usr/include/glad -I usr/include/GLES -I usr/include/GLES2
 OBJDIR := obj

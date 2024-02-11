@@ -17,7 +17,7 @@ struct Cube;
 static constexpr short SC_MAX_LOD_LEVEL = 10;
 
 struct LOD{
-    unordered_map<uint64_t,Cube> cubeTable;        /* hashmap between ijk and cell*/
+    unordered_map<uint64_t,Cube> cubeTable;        /* hashmap between coord and cell*/
     size_t totalTriCount = 0;
     size_t totalVertCount = 0;
     int level;                                     /* level*/
@@ -45,6 +45,6 @@ struct HLOD{
     void BuildLODFromInput(Mesh* rawMesh, size_t vertCount, size_t triCount);
 };
 
-/* Dispath the triangle based on the triangle, push the ijk to the cubeTable, push the ijk and cells to the cubeTable*/
+/* Dispath the triangle based on the triangle, push the coord to the cubeTable, push the coord and cells to the cubeTable*/
 void Dispatch(int xyz[3], unordered_map<uint64_t,Cube > &cubeTable);
 

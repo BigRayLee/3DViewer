@@ -25,8 +25,7 @@ ModelReader::~ModelReader(){
 int ModelReader::InputModel(string fileName){
     if (fileName.substr(fileName.length() - 3, fileName.length()) == "ply"){
         cout << "Reading Ply file...";
-        if (PlyParser(fileName.c_str()))
-        {
+        if (PlyParser(fileName.c_str())){
             printf("Error reading PLY file.\n");
         }
     }
@@ -46,7 +45,7 @@ int ModelReader::InputModel(string fileName){
 
     /* Compute normal */
     if (!modelAttriSatus.hasNormal){
-        cout<<"the normal does not exist, compute normal..."<<endl;
+        cout <<"the normal does not exist, compute normal..." << endl;
         meshData->normals = (float *)malloc(3 * vertCount * sizeof(float));
         meshData->normals = ComputeNormal(meshData->positions, meshData->indices, vertCount, triCount * 3);
         modelAttriSatus.hasNormal = true;
@@ -78,7 +77,6 @@ int ModelReader::PlyParser(const char *fileName)
         return -1;
     }
 
-    /* TODO get the texture file path */
     /* Vertex element */
     if (!reader.element_is(kPLYVertexElement)){
         cout << "missing vertex elements" << endl;
@@ -116,7 +114,7 @@ int ModelReader::PlyParser(const char *fileName)
         // }
     }
 
-    /*face element*/
+    /* Face element */
     reader.next_element();
     if (!reader.element_is(kPLYFaceElement)){
         cout << "missing face elements" << endl;
@@ -353,6 +351,7 @@ int ModelReader::BbxParser(const char *fileName)
             file.read((char*)(meshData->remap), vertCount * sizeof(uint32_t));
         }
     }
+    
     file.close();
 
     triCount = idxCount / 3;

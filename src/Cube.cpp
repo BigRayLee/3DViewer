@@ -3,9 +3,9 @@
 Cube::Cube(){}
 
 /*get the bottom point information of boundingbox based on the logical cell size*/
-void Cube::ComputeBottomVertex(float bottom[3], int ijk[3], float length, float min[3]){
+void Cube::ComputeBottomVertex(float bottom[3], int coord[3], float length, float min[3]){
     for(int i = 0; i < 3; ++i){
-        bottom[i] = ijk[i] * length + min[i];
+        bottom[i] = coord[i] * length + min[i];
         top[i] = bottom[i] + length;
     }
 }

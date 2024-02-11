@@ -3,20 +3,20 @@
 ModelAttributesStatus modelAttriSatus = {false, false, false, false};
 
 /* Compute the normal for the model */
-float* ComputeNormal(float* vertices, uint32_t* indices, size_t vertex_count, size_t index_count){
-    float* normals = (float*)malloc(vertex_count * 3 * sizeof(float));
+float* ComputeNormal(float* vertices, uint32_t* indices, size_t vertCount, size_t indexCount){
+    float* normals = (float*)malloc(vertCount * 3 * sizeof(float));
 
     /* Position map */
-    uint32_t *remap = (uint32_t*)malloc(vertex_count * sizeof(uint32_t));
-    float* unique_vertices = (float*)malloc(vertex_count * sizeof(float) * 3);
-    size_t unique_vertex_count = meshopt_generateVertexRemap(remap, NULL, vertex_count, vertices, vertex_count, 3 * sizeof(float));
+    uint32_t *remap = (uint32_t*)malloc(vertCount * sizeof(uint32_t));
+    float* unique_vertices = (float*)malloc(vertCount * sizeof(float) * 3);
+    size_t unique_vertCount = meshopt_generateVertexRemap(remap, NULL, vertCount, vertices, vertCount, 3 * sizeof(float));
 
     /* Initialize the normals */
-    for(size_t i = 0; i < 3 * vertex_count; ++i){
+    for(size_t i = 0; i < 3 * vertCount; ++i){
         normals[i] = 0.0;
     }
 
-    for(size_t i = 0; i < index_count; i = i + 3){
+    for(size_t i = 0; i < indexCount; i = i + 3){
         Vec3 v1, v2, v3, n;
         v1.x = vertices[3 * indices[i]],     v1.y = vertices[3 * indices[i] + 1],     v1.z = vertices[3 * indices[i] + 2];
         v2.x = vertices[3 * indices[i + 1]], v2.y = vertices[3 * indices[i + 1] + 1], v2.z = vertices[3 * indices[i + 1] + 2];
@@ -29,7 +29,7 @@ float* ComputeNormal(float* vertices, uint32_t* indices, size_t vertex_count, si
         normals[3 * remap[indices[i + 2]]] +=  n.x, normals[3 * remap[indices[i + 2]] + 1] += n.y, normals[3 * remap[indices[i + 2]] + 2] += n.z;
     }
 
-    for (size_t i = 0; i < vertex_count; ++i){
+    for (size_t i = 0; i < vertCount; ++i){
         Vec3 n;
         if(remap[i] == i){
             n.x = normals[3 * i], n.y = normals[3 * i + 1], n.z = normals[3 * i + 2];

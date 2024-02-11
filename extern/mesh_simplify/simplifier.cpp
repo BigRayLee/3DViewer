@@ -118,8 +118,13 @@ struct PositionHasher
 	{
 		const unsigned int* key = reinterpret_cast<const unsigned int*>(vertex_positions + index * vertex_stride_float);
 
+		// scramble bits to make sure that integer coordinates have entropy in lower bits
+		unsigned int x = key[0] ^ (key[0] >> 17);
+		unsigned int y = key[1] ^ (key[1] >> 17);
+		unsigned int z = key[2] ^ (key[2] >> 17);
+
 		// Optimized Spatial Hashing for Collision Detection of Deformable Objects
-		return (key[0] * 73856093) ^ (key[1] * 19349663) ^ (key[2] * 83492791);
+		return (x * 73856093) ^ (y * 19349663) ^ (z * 83492791);
 	}
 
 	bool equal(unsigned int lhs, unsigned int rhs) const
@@ -277,7 +282,6 @@ static void classifyVertices(unsigned char* result, unsigned int* loop, unsigned
 		}
 	}
 
-
 #if TRACE
 	size_t stats[4] = {};
 #endif
@@ -352,7 +356,7 @@ static void classifyVertices(unsigned char* result, unsigned int* loop, unsigned
 
 #if TRACE
 	printf("locked: many open edges %d, disconnected seam %d, many seam edges %d, many wedges %d\n",
-	       int(stats[0]), int(stats[1]), int(stats[2]), int(stats[3]));
+	    int(stats[0]), int(stats[1]), int(stats[2]), int(stats[3]));
 #endif
 }
 
@@ -842,20 +846,7 @@ static void sortEdgeCollapses(unsigned int* sort_order, const Collapse* collapse
 	}
 }
 
-static size_t performEdgeCollapses(	unsigned int* collapse_remap, 
-									unsigned char* collapse_locked, 
-									Quadric* vertex_quadrics, 
-									const Collapse* collapses, 
-									size_t collapse_count, 
-									const unsigned int* collapse_order, 
-									const unsigned int* remap, 
-									const unsigned int* wedge, 
-									const unsigned char* vertex_kind, 
-									const Vector3* vertex_positions, 
-									const EdgeAdjacency& adjacency, 
-									size_t triangle_collapse_goal, 
-									float error_limit, 
-									float& result_error)
+static size_t performEdgeCollapses(unsigned int* collapse_remap, unsigned char* collapse_locked, Quadric* vertex_quadrics, const Collapse* collapses, size_t collapse_count, const unsigned int* collapse_order, const unsigned int* remap, const unsigned int* wedge, const unsigned char* vertex_kind, const Vector3* vertex_positions, const EdgeAdjacency& adjacency, size_t triangle_collapse_goal, float error_limit, float& result_error)
 {
 	size_t edge_collapses = 0;
 	size_t triangle_collapses = 0;
@@ -961,8 +952,8 @@ static size_t performEdgeCollapses(	unsigned int* collapse_remap,
 	float error_goal_perfect = edge_collapse_goal < collapse_count ? collapses[collapse_order[edge_collapse_goal]].error : 0.f;
 
 	printf("removed %d triangles, error %e (goal %e); evaluated %d/%d collapses (done %d, skipped %d, invalid %d)\n",
-		int(triangle_collapses), sqrtf(result_error), sqrtf(error_goal_perfect),
-		int(stats[0]), int(collapse_count), int(edge_collapses), int(stats[1]), int(stats[2]));
+	    int(triangle_collapses), sqrtf(result_error), sqrtf(error_goal_perfect),
+	    int(stats[0]), int(collapse_count), int(edge_collapses), int(stats[1]), int(stats[2]));
 #endif
 
 	return edge_collapses;
@@ -1052,7 +1043,7 @@ struct IdHasher
 
 struct TriangleHasher
 {
-	unsigned int* indices;
+	const unsigned int* indices;
 
 	size_t hash(unsigned int i) const
 	{
@@ -1266,11 +1257,12 @@ static float interpolate(float y, float x0, float y0, float x1, float y1, float 
 
 } // namespace meshopt
 
-//#ifndef NDEBUG
-unsigned char* meshopt_simplifyDebugKind = 0;
-unsigned int* meshopt_simplifyDebugLoop = 0;
-unsigned int* meshopt_simplifyDebugLoopBack = 0;
-//#endif
+#ifndef NDEBUG
+// Note: this is only exposed for debug visualization purposes; do *not* use these in debug builds
+MESHOPTIMIZER_API unsigned char* meshopt_simplifyDebugKind = 0;
+MESHOPTIMIZER_API unsigned int* meshopt_simplifyDebugLoop = 0;
+MESHOPTIMIZER_API unsigned int* meshopt_simplifyDebugLoopBack = 0;
+#endif
 
 size_t meshopt_simplify(unsigned int* destination, const unsigned int* indices, size_t index_count, const float* vertex_positions_data, size_t vertex_count, size_t vertex_positions_stride, size_t target_index_count, float target_error, float* out_result_error)
 {
@@ -1313,7 +1305,7 @@ size_t meshopt_simplify(unsigned int* destination, const unsigned int* indices, 
 		kinds[vertex_kind[i]] += remap[i] == i;
 
 	printf("kinds: manifold %d, border %d, seam %d, complex %d, locked %d\n",
-	       int(kinds[Kind_Manifold]), int(kinds[Kind_Border]), int(kinds[Kind_Seam]), int(kinds[Kind_Complex]), int(kinds[Kind_Locked]));
+	    int(kinds[Kind_Manifold]), int(kinds[Kind_Border]), int(kinds[Kind_Seam]), int(kinds[Kind_Complex]), int(kinds[Kind_Locked]));
 #endif
 
 	Vector3* vertex_positions = allocator.allocate<Vector3>(vertex_count);
@@ -1471,9 +1463,9 @@ size_t meshopt_simplifySloppy(unsigned int* destination, const unsigned int* ind
 
 #if TRACE
 		printf("pass %d (%s): grid size %d, triangles %d, %s\n",
-		       pass, (pass == 0) ? "guess" : (pass <= kInterpolationPasses) ? "lerp" : "binary",
-		       grid_size, int(triangles),
-		       (triangles <= target_index_count / 3) ? "under" : "over");
+		    pass, (pass == 0) ? "guess" : (pass <= kInterpolationPasses) ? "lerp" : "binary",
+		    grid_size, int(triangles),
+		    (triangles <= target_index_count / 3) ? "under" : "over");
 #endif
 
 		float tip = interpolate(float(target_index_count / 3), float(min_grid), float(min_triangles), float(grid_size), float(triangles), float(max_grid), float(max_triangles));
@@ -1600,9 +1592,9 @@ size_t meshopt_simplifyPoints(unsigned int* destination, const float* vertex_pos
 
 #if TRACE
 		printf("pass %d (%s): grid size %d, vertices %d, %s\n",
-		       pass, (pass == 0) ? "guess" : (pass <= kInterpolationPasses) ? "lerp" : "binary",
-		       grid_size, int(vertices),
-		       (vertices <= target_vertex_count) ? "under" : "over");
+		    pass, (pass == 0) ? "guess" : (pass <= kInterpolationPasses) ? "lerp" : "binary",
+		    grid_size, int(vertices),
+		    (vertices <= target_vertex_count) ? "under" : "over");
 #endif
 
 		float tip = interpolate(float(target_vertex_count), float(min_grid), float(min_vertices), float(grid_size), float(vertices), float(max_grid), float(max_vertices));

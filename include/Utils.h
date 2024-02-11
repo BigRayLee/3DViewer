@@ -13,6 +13,7 @@ constexpr int COLOR_STRIDE = 3 * sizeof(unsigned char); /* color stride*/
 
 /* Mesh simplification block size */
 constexpr int SC_BLOCK_SIZE = 4; 
+constexpr int SC_COORD_CONVERT = 2;                     /* half of SC_BLOCK_SIZE*/
 
 /* Input mesh model attribute */
 struct ModelAttributesStatus{
@@ -25,8 +26,7 @@ struct ModelAttributesStatus{
 extern ModelAttributesStatus modelAttriSatus;
 
 /* Multiresolution construction related structure */
-struct Boxcoord
-{
+struct Boxcoord{
     short x, y, z;
 };
 
@@ -92,32 +92,33 @@ inline void CalculateBarycenter(Vec3 v1, Vec3 v2,  Vec3 v3, float ct[3]){
         ct[2] = (v1.z + v2.z + v3.z) / 3.0;
     }
 
-/* Convert the point to ijk coordinate */
-inline void Float2Int(float p[3], int ijk[3], float bottom[3], float step){
+/* Convert the point to coord coordinate */
+inline void Float2Int(float p[3], int coord[3], float bottom[3], float step){
     for(int i = 0; i < 3; i++){
-        ijk[i] = floor((p[i] - bottom[i]) * step);
+        coord[i] = floor((p[i] - bottom[i]) * step);
     }
 }
 
 /* Compute the normal for the model */
-float* ComputeNormal(float* vertices, uint32_t* indices, size_t vertex_count, size_t index_count);
+float* ComputeNormal(float* vertices, uint32_t* indices, size_t vertCount, size_t indexCount);
 
-/* Convert the ijk coordinate based on the block size */
+/* Convert the coord coordinate based on the block size */
 inline bool ConvertBlockCoordinates(Boxcoord& temp, Boxcoord& result, int block_width, int lodSize){
     bool exist = true;
-    if (((temp.x - block_width/2 ) >= 0) && ((temp.y - block_width/2) >= 0) && ((temp.z - block_width/2) >= 0) &&
-        ((temp.x - block_width/2 ) < lodSize) && ((temp.y - block_width/2) < lodSize) && ((temp.z - block_width/2) < lodSize))
-        {
-            result.x = temp.x - block_width/2;
-            result.y = temp.y - block_width/2;
-            result.z = temp.z - block_width/2;
-        }
-    else
+    if (((temp.x - SC_COORD_CONVERT ) >= 0) && ((temp.y - SC_COORD_CONVERT) >= 0) && ((temp.z - SC_COORD_CONVERT) >= 0) &&
+        ((temp.x - SC_COORD_CONVERT ) < lodSize) && ((temp.y - SC_COORD_CONVERT) < lodSize) && ((temp.z - SC_COORD_CONVERT) < lodSize)){
+        result.x = temp.x - SC_COORD_CONVERT;
+        result.y = temp.y - SC_COORD_CONVERT;
+        result.z = temp.z - SC_COORD_CONVERT;
+    }
+    else{
         exist = false;
+    }
+        
     return exist;
 }
 
-/* compute the max min value */
+/* Compute the max min value */
 void GetMaxMin(Vec3 v, float min[3], float max[3]);
 void GetMaxMin(float x, float y, float z, float min[3], float max[3]);
 
@@ -127,4 +128,5 @@ inline void MemoryFree(void* ptr){
         free(ptr);
         ptr = nullptr;
     }
+    
 }

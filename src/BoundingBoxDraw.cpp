@@ -12,7 +12,7 @@ void BoundingBoxDraw::InitBuffer(Cube& cube, float length){
     glGenBuffers(1, &bbxVBO);
     glGenBuffers(1, &bbxEBO);
 
-    /*bind bufferd*/
+    /* Bind buffer */
     glBindVertexArray(bbxVAO);
     glBindBuffer(GL_ARRAY_BUFFER, bbxVBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bbxEBO);    
@@ -55,7 +55,7 @@ void BoundingBoxDraw::RenderBiggestBBX(Cube& cube, Shader *bbxShader, float leng
 void BoundingBoxDraw::Render(Cube& cube, Shader* bbxShader, float length, int level){
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    uint64_t ijk_info = (uint64_t) (cube.ijk[0]) | ((uint64_t)(cube.ijk[1])<<16) | ((uint64_t)(cube.ijk[2]) << 32) | ((uint64_t)(level) << 48);
+    uint64_t ijk_info = (uint64_t) (cube.coord[0]) | ((uint64_t)(cube.coord[1])<<16) | ((uint64_t)(cube.coord[2]) << 32) | ((uint64_t)(level) << 48);
     if(vboOffset.count(ijk_info) == 0 && eboOffset.count(ijk_info) == 0){
         vertexOffset = vertexOffset + 8 * 3 * sizeof(float);
         idxOffset = idxOffset + 24 * sizeof(uint32_t);

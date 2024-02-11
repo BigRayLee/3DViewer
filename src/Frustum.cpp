@@ -2,8 +2,7 @@
 #include "Ndc.h" /* reversed_y, reversed_z, z_zero_one */
 #include "Frustum.h"
 
-Mat4 projection_matrix(const CameraFrustum& frustum)
-{
+Mat4 projection_matrix(const CameraFrustum& frustum){
 	if (!frustum.is_ortho)
 	{
 		return perspective_matrix(
@@ -20,8 +19,7 @@ Mat4 projection_matrix(const CameraFrustum& frustum)
 	}
 }
 
-Mat4 projection_matrix_inv(const CameraFrustum& frustum)
-{
+Mat4 projection_matrix_inv(const CameraFrustum& frustum){
 	if (!frustum.is_ortho)
 	{
 		return perspective_matrix_inv(
@@ -38,8 +36,7 @@ Mat4 projection_matrix_inv(const CameraFrustum& frustum)
 	}
 }
 
-Mat4 perspective_matrix(float ax, float ay, float sx, float sy, float n, float f)
-{
+Mat4 perspective_matrix(float ax, float ay, float sx, float sy, float n, float f){
 	assert(n != f);
 	
 	Mat4 M;
@@ -87,9 +84,7 @@ Mat4 perspective_matrix(float ax, float ay, float sx, float sy, float n, float f
 	return (M);
 }
 
-Mat4 perspective_matrix_inv(float ax, float ay, float sx, float sy, float n, float f)
-{
-	
+Mat4 perspective_matrix_inv(float ax, float ay, float sx, float sy, float n, float f){
 	assert(n != 0 && f != 0);
 
 	const float inv_ax = 1.f / ax;
@@ -142,8 +137,7 @@ Mat4 perspective_matrix_inv(float ax, float ay, float sx, float sy, float n, flo
 	return (M);
 }
 
-Mat4 orthographic_matrix(float ax, float ay, float sx, float sy, float n, float f)
-{
+Mat4 orthographic_matrix(float ax, float ay, float sx, float sy, float n, float f){
 	assert(n != f);
 
 	Mat4 M;
@@ -191,8 +185,7 @@ Mat4 orthographic_matrix(float ax, float ay, float sx, float sy, float n, float 
 	return (M);
 }
 
-Mat4 orthographic_matrix_inv(float ax, float ay, float sx, float sy, float n, float f)
-{
+Mat4 orthographic_matrix_inv(float ax, float ay, float sx, float sy, float n, float f){
 	assert(n != f);
 
 	const float inv_ax = 1.f / ax;

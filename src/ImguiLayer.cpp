@@ -60,9 +60,6 @@ void ImguiLayer::ImguiDraw(size_t &tri_num){
 		   1000.0f / io->Framerate, io->Framerate);
     ImGui::Text("Number of Triangles: %ld /frame (%.4f M / frame)", tri_num, float(tri_num)/1000000.0);
     
-    // ImGui::Text("GPU usage: %.2f / %.2f MB", gpu_use, gpu_usage);
-    // ImGui::Text("visbile cells: %d , rendered cells: %d", cell_visible, cell_rendered);
-    
     ImGui::Text("rendered cells: %d", renderCubeCount);
 
     ImGui::Text("\n");
@@ -79,7 +76,7 @@ void ImguiLayer::ImguiDraw(size_t &tri_num){
         isSavePic = true;
     }
 
-    // Draw the real-time frametime plot
+    /* Draw the real-time frametime plot */ 
     static bool animate = true;
     ImGui::Checkbox("Animate", &animate);
     static float values[90] = { 0.0f };
@@ -91,9 +88,7 @@ void ImguiLayer::ImguiDraw(size_t &tri_num){
     }
         
     float value_sum = 0.0;
-    
-    while (refresh_time < ImGui::GetTime()) 
-    {
+    while (refresh_time < ImGui::GetTime()){
         static float phase = 0.0f;
         values[values_offset] = 1000.0f / io->Framerate;
         values_offset = (values_offset + 1) % IM_ARRAYSIZE(values);
@@ -101,10 +96,10 @@ void ImguiLayer::ImguiDraw(size_t &tri_num){
         refresh_time += 1.0f * 0.0166667f;
         
     }
+
     for(int i = 0; i < values_offset ; ++ i){
         value_sum += values[values_offset];
     }
-        
     string plot_str = std::to_string( value_sum/values_offset );
     ImGui::PlotLines("Frame Times", values, IM_ARRAYSIZE(values), values_offset, plot_str.c_str(), 0.0f, 36.00f, ImVec2(0,40));
 
@@ -134,10 +129,6 @@ void ImguiLayer::ImguiClean(){
 
 }
 
-ImguiLayer::ImguiLayer()
-{
-}
+ImguiLayer::ImguiLayer(){}
 
-ImguiLayer::~ImguiLayer()
-{
-}
+ImguiLayer::~ImguiLayer(){}

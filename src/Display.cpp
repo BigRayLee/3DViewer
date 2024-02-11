@@ -60,7 +60,7 @@ int LoadChildCube(int parentCoord[3], LOD *meshbook[],
     if (curLevel < 0) return -1;
 
     LOD *mg = meshbook[curLevel];
-    Mat4 pvm = viewer->camera->GlmMat4_to(projection * view * model);
+    Mat4 pvm = viewer->camera->GlmToMAT4(projection * view * model);
 
     int xyz[3];
     for (int ix = 0; ix < 2; ix++){
@@ -69,18 +69,18 @@ int LoadChildCube(int parentCoord[3], LOD *meshbook[],
             xyz[1] = parentCoord[1] * 2 + iy;
             for (int iz = 0; iz < 2; iz++){
                 xyz[2] = parentCoord[2] * 2 + iz;
-                uint64_t ijk = (uint64_t)(xyz[0]) | ((uint64_t)(xyz[1]) << 16) | ((uint64_t)(xyz[2]) << 32);
+                uint64_t coord = (uint64_t)(xyz[0]) | ((uint64_t)(xyz[1]) << 16) | ((uint64_t)(xyz[2]) << 32);
                 
-                if (mg->cubeTable.count(ijk) == 0){
+                if (mg->cubeTable.count(coord) == 0){
                     continue;
                 }
                     
                 glm::vec3 cameraPos = glm::vec3(camera->position.x, camera->position.y, camera->position.z);
-                float dis = CalculateDistanceToCube(mg->cubeTable[ijk].bottom, cameraPos, model, view, mg->cubeLength); 
+                float dis = CalculateDistanceToCube(mg->cubeTable[coord].bottom, cameraPos, model, view, mg->cubeLength); 
 
                 if (dis >= (viewer->kappa * pow(2, -(mg->level))) || mg->level == maxLevel){
-                    if (AfterFrustumCulling(mg->cubeTable[ijk], pvm)){
-                        renderStack.push(make_pair(mg->level, ijk));
+                    if (AfterFrustumCulling(mg->cubeTable[coord], pvm)){
+                        renderStack.push(make_pair(mg->level, coord));
                     }
                 }
                 else{
@@ -111,7 +111,7 @@ bool AfterFrustumCulling(Cube &cube, Mat4 pvm)
 
 void SelectCubeVisbility(LOD *meshbook[], int maxLevel, glm::mat4 model, glm::mat4 view, glm::mat4 projection)
 {
-    Mat4 pvm = viewer->camera->GlmMat4_to(projection * view * model);
+    Mat4 pvm = viewer->camera->GlmToMAT4(projection * view * model);
     for (auto &c : meshbook[maxLevel]->cubeTable){
 
         glm::vec3 cameraPos = glm::vec3(viewer->camera->position.x, viewer->camera->position.y, viewer->camera->position.z);
@@ -123,7 +123,7 @@ void SelectCubeVisbility(LOD *meshbook[], int maxLevel, glm::mat4 model, glm::ma
             }
         }
         else{
-            LoadChildCube(c.second.ijk, meshbook, projection, view, model, viewer->camera, maxLevel, maxLevel - 1);
+            LoadChildCube(c.second.coord, meshbook, projection, view, model, viewer->camera, maxLevel, maxLevel - 1);
         }
 
     }
@@ -223,10 +223,8 @@ int Display(HLOD &multiResModel, int maxLevel)
     viewer->imgui->ImguiInial(viewer->window);
     viewer->imgui->inputVertexCount = multiResModel.lods[0]->totalVertCount;
     viewer->imgui->inputTriCount = multiResModel.lods[0]->totalTriCount;
-
     viewer->imgui->hlodTriCount = multiResModel.data.idxCount / 3;
     viewer->imgui->hlodVertexCount = multiResModel.data.posCount;
-
     viewer->imgui->gpuVendorStr = const_cast<unsigned char*>(glGetString(GL_VENDOR));
     viewer->imgui->gpuModelStr = const_cast<unsigned char*>(glGetString(GL_RENDERER));
 
@@ -320,10 +318,10 @@ int Display(HLOD &multiResModel, int maxLevel)
         /* Transformation matrix */
         Mat4 proj = viewer->camera->view_to_clip();
         Mat4 vm = viewer->camera->world_to_view();
-        glm::mat4 view = viewer->camera->Mat4_to(vm);
+        glm::mat4 view = viewer->camera->Mat4ToGLM(vm);
 
-        glm::mat4 projection = viewer->camera->Mat4_to(proj);
-        Mat4 pvm = viewer->camera->GlmMat4_to(projection * view * modelMat);
+        glm::mat4 projection = viewer->camera->Mat4ToGLM(proj);
+        Mat4 pvm = viewer->camera->GlmToMAT4(projection * view * modelMat);
 
         /* Matrices uniform buffer */
         glBindBuffer(GL_UNIFORM_BUFFER, uboMatices);
@@ -343,8 +341,7 @@ int Display(HLOD &multiResModel, int maxLevel)
         shader->SetInt("maxLevel", maxLevel);
 
         /* Screen shot */
-        if (viewer->imgui->isSavePic)
-        {
+        if (viewer->imgui->isSavePic){
             string screen_shot_name = "./pic/" + to_string(frameCount) + ".tga";
             SaveScreenshotToFile(screen_shot_name, viewer->width, viewer->height);
             viewer->imgui->isSavePic = false;
@@ -377,9 +374,9 @@ int Display(HLOD &multiResModel, int maxLevel)
             
             if (curLevel != 0){
                 uint parentCoord[3];
-                parentCoord[0] = multiResModel.lods[maxLevel - curLevel]->cubeTable[curCubeIdx].ijk[0] / 2;
-                parentCoord[1] = multiResModel.lods[maxLevel - curLevel]->cubeTable[curCubeIdx].ijk[1] / 2;
-                parentCoord[2] = multiResModel.lods[maxLevel - curLevel]->cubeTable[curCubeIdx].ijk[2] / 2;
+                parentCoord[0] = multiResModel.lods[maxLevel - curLevel]->cubeTable[curCubeIdx].coord[0] / 2;
+                parentCoord[1] = multiResModel.lods[maxLevel - curLevel]->cubeTable[curCubeIdx].coord[1] / 2;
+                parentCoord[2] = multiResModel.lods[maxLevel - curLevel]->cubeTable[curCubeIdx].coord[2] / 2;
                 uint64_t ijk_p = (uint64_t)(parentCoord[0]) | ((uint64_t)(parentCoord[1]) << 16) | ((uint64_t)(parentCoord[2]) << 32);
                 parentOffset = multiResModel.lods[maxLevel - curLevel + 1]->cubeTable[ijk_p].vertexOffset * VERTEX_STRIDE;
             }
@@ -397,9 +394,9 @@ int Display(HLOD &multiResModel, int maxLevel)
 
             shader->SetInt("parentBase", parentOffset / (3 * sizeof(float)));
             shader->SetInt("level", multiResModel.lods[maxLevel - curLevel]->level);
-            shader->SetInt("cubeI", multiResModel.lods[maxLevel - curLevel]->cubeTable[curCubeIdx].ijk[0]);
-            shader->SetInt("cubeJ", multiResModel.lods[maxLevel - curLevel]->cubeTable[curCubeIdx].ijk[1]);
-            shader->SetInt("cubek", multiResModel.lods[maxLevel - curLevel]->cubeTable[curCubeIdx].ijk[2]);
+            shader->SetInt("cubeI", multiResModel.lods[maxLevel - curLevel]->cubeTable[curCubeIdx].coord[0]);
+            shader->SetInt("cubeJ", multiResModel.lods[maxLevel - curLevel]->cubeTable[curCubeIdx].coord[1]);
+            shader->SetInt("cubek", multiResModel.lods[maxLevel - curLevel]->cubeTable[curCubeIdx].coord[2]);
             
             glDrawElementsBaseVertex(GL_TRIANGLES,
                                      multiResModel.lods[maxLevel - curLevel]->cubeTable[curCubeIdx].triangleCount * 3,

@@ -3,8 +3,7 @@
 #include "math/quat.h"
 #include "math/geometry.h"
 
-Vec3 screen_trackball(float px, float py, float width, float height)
-{
+Vec3 screen_trackball(float px, float py, float width, float height){
 	float x = (2 * px - width) / width;
 	float y = (height - 2 * py) / height;
 	float a = 2.f / (1.f + x * x + y * y);
@@ -16,9 +15,7 @@ Vec3 screen_trackball(float px, float py, float width, float height)
 	return v;
 }
 
-Vec3 world_trackball(float x, float y, const Vec3& center, float radius, 
-			const Camera& camera)
-{
+Vec3 world_trackball(float x, float y, const Vec3& center, float radius, const Camera& camera){
 	Vec3 view_dir = center - camera.get_position();
 	float len = norm(view_dir);
 

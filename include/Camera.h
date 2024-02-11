@@ -153,7 +153,7 @@ struct Camera
 	Vec3 world_coord_at(float x, float y, float depth) const;
 
 	/*transfer Mat4 to glm::mat4*/
-	glm::mat4 Mat4_to(Mat4 mat){
+	glm::mat4 Mat4ToGLM(Mat4 mat){
 		glm::mat4 M(1.0);
 		M[0][0] = mat(0, 0);
 		M[0][1] = mat(1, 0);
@@ -178,7 +178,7 @@ struct Camera
 	}
 
 	/*transfer Mat4 to glm::mat4*/
-	Mat4 GlmMat4_to(glm::mat4 M){
+	Mat4 GlmToMAT4(glm::mat4 M){
 		Mat4 mat;
 		mat(0, 0) = M[0][0];
 		mat(1, 0) = M[0][1];

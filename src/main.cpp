@@ -18,7 +18,6 @@ using namespace std;
  * @param   arg2 enable/disable quantization 
  * @param   arg3 maximum level of multi-resolution model (optional)
  * @param   arg4 error threshold for mesh simplification (optional)
- * @param   arg5 file path of texture map
  * @return  Description of the return value.
  */
 
@@ -61,7 +60,7 @@ int main(int argc, char *argv[])
     cout<<"cell: " << multiResoModel.lods[0]->cubeTable.size() << " faces: "
          << multiResoModel.lods[0]->CalculateTriangleCounts() << 
         " vertices: " << multiResoModel.lods[0]->CalculateVertexCounts() << endl;
-
+        
     delete modelReader;
     
     HLODConsructor(&multiResoModel, level, errorThreshold);
@@ -71,7 +70,6 @@ int main(int argc, char *argv[])
     
     /* Display */
     cout << "\nAdpative LOD Rendering..." << endl;
-    
     Display(multiResoModel, level);
     return 0;
 }

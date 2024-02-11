@@ -10,8 +10,8 @@ void TimerStart()
 {
 	gettimeofday(&tv0, NULL);
 }
-unsigned TimerStop(const char *str)
-{
+
+unsigned TimerStop(const char *str){
 	float elapsedTime = 0.0;
 	gettimeofday(&tv1, NULL);
 	unsigned int mus = 1000000 * (tv1.tv_sec - tv0.tv_sec);

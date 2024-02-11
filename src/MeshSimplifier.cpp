@@ -1,15 +1,12 @@
 #include "MeshSimplifier.h"
-
 #include "mesh_simplify/meshoptimizer_mod.h"
-#include "mesh_simplify/simplify_mod_tex.h"
 
 /* Threads number */
 const unsigned short threadNum = 8;
 pthread_mutex_t block_index_mutex;
 unsigned nextIdx;
 
-size_t RemapIndexBufferSkipDegenerate(uint32_t *indices, size_t index_count, const uint32_t *remap)
-{
+size_t RemapIndexBufferSkipDegenerate(uint32_t *indices, size_t index_count, const uint32_t *remap){
     size_t newIdxCount = 0;
 
     for (size_t i = 0; i < index_count; i += 3){
@@ -49,19 +46,19 @@ unsigned LoadBlockData(HLOD *hlod, Boxcoord& blkCoord, int curLevel, int width, 
                     continue;
                 }
                 
-                uint64_t ijk = (uint64_t)(result.x) | ((uint64_t)(result.y) << 16) | ((uint64_t)(result.z) << 32);
+                uint64_t coord = (uint64_t)(result.x) | ((uint64_t)(result.y) << 16) | ((uint64_t)(result.z) << 32);
                 
-                if (hlod->lods[curLevel]->cubeTable.count(ijk) == 0){
+                if (hlod->lods[curLevel]->cubeTable.count(coord) == 0){
                     continue;
                 }
                     
-                int indexCount = hlod->lods[curLevel]->cubeTable[ijk].triangleCount * 3;
-                int vertexCount = hlod->lods[curLevel]->cubeTable[ijk].vertCount;
+                int indexCount = hlod->lods[curLevel]->cubeTable[coord].triangleCount * 3;
+                int vertexCount = hlod->lods[curLevel]->cubeTable[coord].vertCount;
 
                 if (isGetData){
-                    // Offset of hlod data buffer
-                    size_t cubeVertexOffset = hlod->lods[curLevel]->cubeTable[ijk].vertexOffset;
-                    size_t cubeIdxOffset = hlod->lods[curLevel]->cubeTable[ijk].idxOffset;
+                    /* Offset of hlod data buffer */
+                    size_t cubeVertexOffset = hlod->lods[curLevel]->cubeTable[coord].vertexOffset;
+                    size_t cubeIdxOffset = hlod->lods[curLevel]->cubeTable[coord].idxOffset;
 
                     uint32_t *targetIndices = destination->indices + indexOffset;
                     memcpy(targetIndices, &hlod->data.indices[cubeIdxOffset], indexCount * sizeof(uint32_t));
@@ -70,15 +67,15 @@ unsigned LoadBlockData(HLOD *hlod, Boxcoord& blkCoord, int curLevel, int width, 
                         targetIndices[i] = targetIndices[i] + vertexOffset;
                     }
                                         
-                    /* position */
+                    /* Position */
                     float *targetPosition = destination->positions + vertexOffset * 3;
                     memcpy(targetPosition, &hlod->data.positions[3 * cubeVertexOffset], vertexCount * VERTEX_STRIDE);
 
-                    /* normal */
+                    /* Normal */
                     float *targetNormal = destination->normals + vertexOffset * 3;
                     memcpy(targetNormal, &hlod->data.normals[3 * cubeVertexOffset], vertexCount * VERTEX_STRIDE);
                     
-                    cubeTable.insert(make_pair(ijk, make_pair(indexOffset, vertexOffset)));
+                    cubeTable.insert(make_pair(coord, make_pair(indexOffset, vertexOffset)));
                 }
 
                 cubeCount++;
@@ -118,21 +115,21 @@ unsigned LoadChildData(HLOD *hlod, Mesh *blkData, uint64_t *cubeList, Boxcoord& 
                 if(!ConvertBlockCoordinates(temp, result, SC_BLOCK_SIZE, hlod->lods[curLevel]->lodSize))
                     continue;
 
-                uint64_t ijk = (uint64_t)(result.x) | ((uint64_t)(result.y) << 16) | ((uint64_t)(result.z) << 32);
+                uint64_t coord = (uint64_t)(result.x) | ((uint64_t)(result.y) << 16) | ((uint64_t)(result.z) << 32);
                 
-                if (hlod->lods[curLevel]->cubeTable.count(ijk) == 0)
+                if (hlod->lods[curLevel]->cubeTable.count(coord) == 0)
                     continue;
 
                 
-                cubeList[cubeCount] = ijk;
+                cubeList[cubeCount] = coord;
 
-                int indexCount = hlod->lods[curLevel]->cubeTable[ijk].triangleCount * 3;
-                int vertexCount = hlod->lods[curLevel]->cubeTable[ijk].vertCount;
+                int indexCount = hlod->lods[curLevel]->cubeTable[coord].triangleCount * 3;
+                int vertexCount = hlod->lods[curLevel]->cubeTable[coord].vertCount;
 
-                // Vetrex offset based on simplied vertices
-                size_t cubeVertexOffset = cubeTable[ijk].second;
-                // Index offset based on original data
-                size_t cubeIdxOffset = hlod->lods[curLevel]->cubeTable[ijk].idxOffset;
+                /* Vetrex offset based on simplied vertices */
+                size_t cubeVertexOffset = cubeTable[coord].second;
+                /* Index offset based on original data */ 
+                size_t cubeIdxOffset = hlod->lods[curLevel]->cubeTable[coord].idxOffset;
 
                 uint32_t *targetIndices = destination->indices + indexOffset;
                 memcpy(targetIndices, &hlod->data.indices[cubeIdxOffset], indexCount * sizeof(uint32_t));
@@ -141,11 +138,11 @@ unsigned LoadChildData(HLOD *hlod, Mesh *blkData, uint64_t *cubeList, Boxcoord& 
                     targetIndices[i] = targetIndices[i] + vertexOffset;
                 }
                 
-                /* position */
+                /* Position */
                 float *targetPosition = destination->positions + vertexOffset * 3;
                 memcpy(targetPosition, &blkData->positions[3 * cubeVertexOffset], vertexCount * VERTEX_STRIDE);
                 
-                /* normal */
+                /* Normal */
                 float *targetNormal = destination->normals + vertexOffset * 3;
                 memcpy(targetNormal, &blkData->normals[3 * cubeVertexOffset], vertexCount * VERTEX_STRIDE);
                 
@@ -176,12 +173,9 @@ unsigned ComputeMaxCounts(HLOD *hlod, int curLevel, Block* blk){
 
     unordered_map<uint64_t, pair<size_t, size_t>> cubeTable;
 
-    for (int nx = 0; nx < hlod->lods[curLevel]->lodSize + blk->width; nx = nx + blk->width)
-    {
-        for (int ny = 0; ny < hlod->lods[curLevel]->lodSize + blk->width; ny = ny + blk->width)
-        {
-            for (int nz = 0; nz < hlod->lods[curLevel]->lodSize + blk->width; nz = nz + blk->width)
-            {
+    for (int nx = 0; nx < hlod->lods[curLevel]->lodSize + blk->width; nx = nx + blk->width){
+        for (int ny = 0; ny < hlod->lods[curLevel]->lodSize + blk->width; ny = ny + blk->width){
+            for (int nz = 0; nz < hlod->lods[curLevel]->lodSize + blk->width; nz = nz + blk->width){
                 Boxcoord blkCoord;
                 blkCoord.x = nx, blkCoord.y = ny, blkCoord.z = nz;
                 size_t index_count = 0;
@@ -328,19 +322,19 @@ void *BlockSimplification(Parameter &arg, unsigned int block_idx){
                 parentBlk.idxCount = RemapIndexBufferSkipDegenerate(parentBlk.indices, parentBlk.idxCount, parentRemap);
                 
                 //TODO: NO DIVISION
-                parentCoord.x = short((parentCoord.x - SC_BLOCK_SIZE / 2) / 2);
-                parentCoord.y = short((parentCoord.y - SC_BLOCK_SIZE / 2) / 2);
-                parentCoord.z = short((parentCoord.z - SC_BLOCK_SIZE / 2) / 2);
+                parentCoord.x = short((parentCoord.x - SC_COORD_CONVERT) / 2);
+                parentCoord.y = short((parentCoord.y - SC_COORD_CONVERT) / 2);
+                parentCoord.z = short((parentCoord.z - SC_COORD_CONVERT) / 2);
 
                 uint64_t ijk_p = (uint64_t)(parentCoord.x) | ((uint64_t)(parentCoord.y) << 16) | ((uint64_t)(parentCoord.z) << 32);
                 
                 Cube parentCube;
 
-                parentCube.ijk[0] = parentCoord.x;
-                parentCube.ijk[1] = parentCoord.y;
-                parentCube.ijk[2] = parentCoord.z;
+                parentCube.coord[0] = parentCoord.x;
+                parentCube.coord[1] = parentCoord.y;
+                parentCube.coord[2] = parentCoord.z;
 
-                parentCube.ijk_64 = ijk_p;
+                parentCube.coord64 = ijk_p;
 
                 pthread_mutex_lock(&block_index_mutex);
                 {
@@ -389,7 +383,7 @@ void *BlockSimplification(Parameter &arg, unsigned int block_idx){
     MemoryFree(simplifyBlk.positions);
     MemoryFree(simplifyBlk.indices);
         
-    /* parent reconstruction block data */
+    /* Free parent reconstruction block data */
     MemoryFree(unqiueParentPosition);
     MemoryFree(unqiueParentNormal);
     MemoryFree(parentRemap);
@@ -402,8 +396,7 @@ void *BlockSimplification(Parameter &arg, unsigned int block_idx){
     return NULL;
 }
 
-bool BuileNextBlock(Parameter& param)
-{
+bool BuileNextBlock(Parameter& param){
     pthread_mutex_lock(&block_index_mutex);
     unsigned curIdx = nextIdx;
     
@@ -411,7 +404,6 @@ bool BuileNextBlock(Parameter& param)
         pthread_mutex_unlock(&block_index_mutex);
         return false;
     }
-
     nextIdx ++;
     pthread_mutex_unlock(&block_index_mutex);
     
@@ -420,8 +412,7 @@ bool BuileNextBlock(Parameter& param)
     return true;
 }
 
-void *BuildParallel(void *arg)
-{
+void *BuildParallel(void *arg){
     Parameter tmp = *(Parameter *)arg;
 
     while (BuileNextBlock(tmp)){}
@@ -484,7 +475,7 @@ void LODConstructor(HLOD *hlod, int curLevel, int width, float targetError){
     
     /* Compute the blkCoord vertex of cube for next LOD */
     for (auto &cb : hlod->lods[curLevel + 1]->cubeTable){
-        cb.second.ComputeBottomVertex(cb.second.bottom, cb.second.ijk, hlod->lods[curLevel + 1]->cubeLength, hlod->min);
+        cb.second.ComputeBottomVertex(cb.second.bottom, cb.second.coord, hlod->lods[curLevel + 1]->cubeLength, hlod->min);
     }
 
     /* For the coarst level, remap is itself */

@@ -10,9 +10,7 @@
 #include "math/transform.h"
 #include "math/aabb.h"
 
-Camera::Camera(float aspect_ratio, float fov, Fov axis)
-
-{
+Camera::Camera(float aspect_ratio, float fov, Fov axis){
 	assert(aspect_ratio > 0.f && fov > 0.f);
 
 	float focal_ratio = 1.f / tan(deg2rad(fov) / 2.f);
@@ -30,9 +28,7 @@ Camera::Camera(float aspect_ratio, float fov, Fov axis)
 	}
 }
 
-Camera& Camera::set_aspect(float aspect_ratio, const Fov cst_axis)
-{
-
+Camera& Camera::set_aspect(float aspect_ratio, const Fov cst_axis){
 	assert(aspect_ratio > 0);
 
 	if (cst_axis == Horizontal)
@@ -46,8 +42,7 @@ Camera& Camera::set_aspect(float aspect_ratio, const Fov cst_axis)
 	return (*this);
 }
 
-Camera& Camera::set_fov(float fov, Fov axis)
-{
+Camera& Camera::set_fov(float fov, Fov axis){
 	float aspect_ratio = frustum.aspect_y / frustum.aspect_x;
 	float focal_ratio = 1.f / tan(deg2rad(fov) / 2.f);
 
@@ -65,21 +60,18 @@ Camera& Camera::set_fov(float fov, Fov axis)
 	return (*this);
 }
 
-Camera& Camera::set_lense_shift(float shift_x, float shift_y)
-{
+Camera& Camera::set_lense_shift(float shift_x, float shift_y){
 	frustum.shift_x = shift_x;
 	frustum.shift_y = shift_y;
 	return (*this);
 }
 
-Camera& Camera::set_orthographic(bool is_ortho)
-{
+Camera& Camera::set_orthographic(bool is_ortho){
 	frustum.is_ortho = is_ortho;
 	return (*this);
 }
 
-Vec3 Camera::get_position() const
-{
+Vec3 Camera::get_position() const{
 	return (position);
 }
 
