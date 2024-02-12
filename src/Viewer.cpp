@@ -157,8 +157,7 @@ void Viewer::MouseMove(float px, float py)
 		 * mouse move when the from and to first belong to two opposite
 		 * hemispheres.
 		 */
-		if (dot(trackball_v, lastTrackballV) < 0)
-		{
+		if (dot(trackball_v, lastTrackballV) < 0){
 			lastClickX = px;
 			lastClickY = py;
 			lastCameraPos  = camera->get_position();
@@ -176,8 +175,7 @@ void Viewer::MouseScroll(float xoffset, float yoffset)
 	camera->set_position(new_pos);
 }
 
-void Viewer::KeyPressed(int key, int action)
-{
+void Viewer::KeyPressed(int key, int action){
 	(void)key;
 	(void)action;
 }

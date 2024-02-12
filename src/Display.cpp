@@ -8,8 +8,7 @@ stack<pair<int, uint64_t>> renderStack;                   /* Render stack */
 size_t renderedTriSum = 0;
 GLuint pos, nml, clr, remap, uv, idx;       
 
-void SaveScreenshotToFile(std::string filename, int windowWidth, int windowHeight)
-{
+void SaveScreenshotToFile(std::string filename, int windowWidth, int windowHeight){
     const int numberOfPixels = windowWidth * windowHeight * 3;
     unsigned char pixels[numberOfPixels];
 
@@ -394,9 +393,9 @@ int Display(HLOD &multiResModel, int maxLevel)
 
             shader->SetInt("parentBase", parentOffset / (3 * sizeof(float)));
             shader->SetInt("level", multiResModel.lods[maxLevel - curLevel]->level);
-            shader->SetInt("cubeI", multiResModel.lods[maxLevel - curLevel]->cubeTable[curCubeIdx].coord[0]);
-            shader->SetInt("cubeJ", multiResModel.lods[maxLevel - curLevel]->cubeTable[curCubeIdx].coord[1]);
-            shader->SetInt("cubek", multiResModel.lods[maxLevel - curLevel]->cubeTable[curCubeIdx].coord[2]);
+            shader->SetInt("coordX", multiResModel.lods[maxLevel - curLevel]->cubeTable[curCubeIdx].coord[0]);
+            shader->SetInt("coordY", multiResModel.lods[maxLevel - curLevel]->cubeTable[curCubeIdx].coord[1]);
+            shader->SetInt("coordZ", multiResModel.lods[maxLevel - curLevel]->cubeTable[curCubeIdx].coord[2]);
             
             glDrawElementsBaseVertex(GL_TRIANGLES,
                                      multiResModel.lods[maxLevel - curLevel]->cubeTable[curCubeIdx].triangleCount * 3,

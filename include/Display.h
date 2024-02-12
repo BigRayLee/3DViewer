@@ -15,7 +15,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "Shader.h"
 #include "Camera.h"
-#include "LOD.h"
+#include "HLOD.h"
 #include "Viewer.h"
 #include "Frustum.h"
 #include "BoundingBoxDraw.h"

@@ -1,9 +1,7 @@
 #include <vector>
-#include <time.h>
 #include <sys/time.h>
-
 #include "ModelRead.h"
-#include "LOD.h"
+#include "HLOD.h"
 #include "Display.h"
 #include "MeshSimplifier.h"
 #include "Chrono.h"

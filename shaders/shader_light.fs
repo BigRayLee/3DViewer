@@ -1,16 +1,15 @@
 #version 430 core
-layout (location = 0) in vec3 Normal;
-layout (location = 1) in vec2 TexCoord;
-layout (location = 2) in vec3 LightPos;
-layout (location = 3) in vec3 ViewDir;
-layout (location = 4) in vec3 Color;
+layout (location = 0) in vec3 nml;
+layout (location = 1) in vec2 texCoord;
+layout (location = 2) in vec3 lightPos;
+layout (location = 3) in vec3 viewDir;
 layout (location = 5) in float lambda;
 
 uniform int level;
 uniform int maxLevel;
-uniform int cubeI;
-uniform int cubeJ;
-uniform int cubeK;
+uniform int coordX;
+uniform int coordY;
+uniform int coordZ;
 uniform bool textureExist;
 uniform bool colorExist;
 uniform bool isCubeColorized;
@@ -41,32 +40,31 @@ const ivec3 cubeColors[8] = {
 const vec3 defaultColor = vec3(0.99f, 0.76f, 0.0f);
 
 void main(){
-
-    /*ambient light*/
+    /* Ambient light */
     vec3 ambient = Ka * AMBIENT_COLOR;
 
-    /*diffuse light*/
-    vec3 VIEW = normalize(ViewDir);
-    vec3 LIGHT = normalize(LightPos);
-    vec3 NML;
+    /* Diffuse light */
+    vec3 view = normalize(viewDir);
+    vec3 light = normalize(lightPos);
+    vec3 normal;
     
-    /*smooth shading*/
+    /* Smooth shading */
     if(isSmoothShading){
-        NML = normalize(Normal);
-        if(dot(VIEW, NML) < 0.0f)
-            NML = -NML;
+        normal = normalize(nml);
+        if(dot(view, normal) < 0.0f)
+            normal = -normal;
     }
-    else{/*flat shading*/
-        NML = normalize(cross(dFdx(ViewDir), dFdy(ViewDir)));
+    else{ /* Flat shading */
+        normal = normalize(cross(dFdx(viewDir), dFdy(viewDir)));
     }
 
-    float Id = max(dot(NML, LIGHT), 0.0f);
+    float Id = max(dot(normal, light), 0.0f);
     vec3 diffuse = Kd * DIFFUSE_COLOR * Id;
 
     float Is = 1.0f;
     if(Id > 0 ){
-        vec3 reflectDir = reflect(-LIGHT, NML);
-        Is = pow(max(dot(reflectDir, VIEW), 0.0f), shininess) * shininess * 0.25f;
+        vec3 reflectDir = reflect(-light, normal);
+        Is = pow(max(dot(reflectDir, view), 0.0f), shininess) * shininess * 0.25f;
     }
     
     vec3 specular = Ks * SPECULAR_COLOR * Is;
@@ -91,7 +89,7 @@ void main(){
         outColor = vec4((ambient + diffuse + specular) * c , 1.0f);
     }
     else if(isCubeColorized){
-        int idx = 31 * level + 7 * cubeI + 13 * cubeJ + 17 * cubeK;
+        int idx = 31 * level + 7 * coordX + 13 * coordY + 17 * coordZ;
         idx = idx & 7;
         vec3 c = vec3(cubeColors[idx]) / 255.f;
         outColor = vec4((ambient + diffuse + specular) * c , 1.0f);  

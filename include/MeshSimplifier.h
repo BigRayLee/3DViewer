@@ -1,7 +1,7 @@
 #pragma once
 #include <fstream>
 #include <pthread.h>
-#include "LOD.h"
+#include "HLOD.h"
 
 /* Block structure for mesh simplification and parent cube construction */
 struct Block{

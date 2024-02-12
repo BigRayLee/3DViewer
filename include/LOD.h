@@ -33,18 +33,6 @@ struct LOD{
     size_t GetCubeCounts();                         
 };
 
-struct HLOD{
-    float min[3]{FLT_MAX, FLT_MAX, FLT_MAX};      /* min value of model*/
-    float max[3]{FLT_MIN, FLT_MIN, FLT_MIN};      /* max value of model*/
-    LOD *lods[SC_MAX_LOD_LEVEL];
-    Mesh data;
-    size_t curIdxOffset = 0;
-    size_t curVertOffset = 0;
-
-    /* Build the highest resolution data based on input data */
-    void BuildLODFromInput(Mesh* rawMesh, size_t vertCount, size_t triCount);
-};
-
 /* Dispath the triangle based on the triangle, push the coord to the cubeTable, push the coord and cells to the cubeTable*/
 void Dispatch(int xyz[3], unordered_map<uint64_t,Cube > &cubeTable);
 
