@@ -500,7 +500,7 @@ void HLODConsructor(HLOD *hlod, int maxLevel, float targetError){
 
         cout << "Cell: " << hlod->lods[i+1]->cubeTable.size() 
         << " faces: " << hlod->lods[i+1]->CalculateTriangleCounts() 
-        << " positions:  "<< hlod->lods[i+1]->CalculateVertexCounts() 
+        << " vertices:  "<< hlod->lods[i+1]->CalculateVertexCounts() 
         << " simplify ratio: " << float(hlod->lods[i+1]->totalTriCount) / float(hlod->lods[i]->totalTriCount) << endl;
     }
 

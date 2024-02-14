@@ -29,12 +29,19 @@ int main(int argc, char *argv[])
     modelReader->InputModel(filePath);
     TimerStop("Model Read time: ");
 
+    TimerStart();
+    if (!modelAttriSatus.hasNormal){
+        modelReader->CalculateNormals();
+    }
+    TimerStop("Nomral Calculation time: ");
+
     /* Set the LOD level automatically */
     int level = 2;
     float errorThreshold = errSimplify;
     if(argc < 5){
-        while(((1 << level) * (1 << level) * TargetCubeIndexCount) < 3 * modelReader->triCount)
+        while(((1 << level) * (1 << level) * TargetCubeIndexCount) < 3 * modelReader->triCount){
             level++;
+        }
     }
     else{
         level = atoi(argv[3]);

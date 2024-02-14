@@ -43,14 +43,6 @@ int ModelReader::InputModel(string fileName){
         return -1;
     }
 
-    /* Compute normal */
-    if (!modelAttriSatus.hasNormal){
-        cout <<"the normal does not exist, compute normal..." << endl;
-        meshData->normals = (float *)malloc(3 * vertCount * sizeof(float));
-        meshData->normals = ComputeNormal(meshData->positions, meshData->indices, vertCount, triCount * 3);
-        modelAttriSatus.hasNormal = true;
-    }
-
     return 0;
 }
 
@@ -77,6 +69,7 @@ int ModelReader::PlyParser(const char *fileName)
         return -1;
     }
 
+    /* TODO get the texture file path */
     /* Vertex element */
     if (!reader.element_is(kPLYVertexElement)){
         cout << "missing vertex elements" << endl;
@@ -104,17 +97,9 @@ int ModelReader::PlyParser(const char *fileName)
             modelAttriSatus.hasNormal = false;
         }
 
-        // /*colors*/
-        // uint32_t color_idx[3];
-        // if(reader.find_color(color_idx)){
-        //     cout<<"read color"<<endl;
-        //     meshData->colors = (u_char*)malloc(vertex_count * 3 * sizeof(u_char));
-        //     reader.extract_properties(color_idx, 3, PLYPropertyType::UChar, meshData->colors);
-        //     colorExist = true;
-        // }
     }
 
-    /* Face element */
+    /*face element*/
     reader.next_element();
     if (!reader.element_is(kPLYFaceElement)){
         cout << "missing face elements" << endl;
@@ -138,34 +123,16 @@ int ModelReader::PlyParser(const char *fileName)
         meshData->indices = (uint32_t *)malloc(index_count * sizeof(uint32_t));
         reader.extract_list_property(idx[0], PLYPropertyType::Int, meshData->indices);
 
-        /* Texture coordinates */
-        uint32_t uv_idx[1];
-        if (reader.find_property("texcoord") == 1){
-            modelAttriSatus.hasSingleTexture = true;
-            uv_idx[0] = reader.find_property("texcoord");
-            meshData->uvs = (float *)malloc(index_count * 2 * sizeof(float));
-            reader.extract_list_property(uv_idx[0], PLYPropertyType::Float, meshData->uvs);
-        }
-        else{
-            cout << "missing texcoords in face elements" << endl;
-        }
     }
 
-    /* Generate the new index buffer for the texture coordinates */
-    if (modelAttriSatus.hasSingleTexture){
-        uint32_t *remap_tex = (uint32_t *)malloc(index_count * sizeof(uint32_t));
-        meshData->indicesUV = (uint32_t *)malloc(index_count * sizeof(uint32_t));
-
-        size_t texture_count = meshopt_generateVertexRemap(remap_tex, NULL, index_count, meshData->uvs, index_count, sizeof(float) * 2);
-        meshopt_remapIndexBuffer(meshData->indicesUV, NULL, index_count, remap_tex);
-        meshopt_remapVertexBuffer(meshData->uvs, meshData->uvs, index_count, sizeof(float) * 2, remap_tex);
-
-        /* Realloc the size */
-        meshData->uvs = (float *)realloc(meshData->uvs, 2 * texture_count * sizeof(float));
-
-        MemoryFree(remap_tex);
-    }
     return 0;
+}
+
+void ModelReader::CalculateNormals(){
+    cout <<"the normal does not exist, compute normal..." << endl;
+    meshData->normals = (float *)malloc(3 * vertCount * sizeof(float));
+    meshData->normals = ComputeNormal(meshData->positions, meshData->indices, vertCount, triCount * 3);
+    modelAttriSatus.hasNormal = true;
 }
 
 int ModelReader::ObjParser(const char *fileName)
@@ -351,7 +318,6 @@ int ModelReader::BbxParser(const char *fileName)
             file.read((char*)(meshData->remap), vertCount * sizeof(uint32_t));
         }
     }
-    
     file.close();
 
     triCount = idxCount / 3;

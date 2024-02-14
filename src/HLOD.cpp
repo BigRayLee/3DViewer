@@ -12,9 +12,6 @@ void HLOD::BuildLODFromInput(Mesh* rawMesh, size_t vertCount, size_t triCount){
     }
     TimerStop("Bounding box computing time: ");
     
-    std::cout<< "Xmin: "<<min[0]<<" "<<"Ymin: "<<min[1]<<" "<<"Zmin: "<<min[2]<<endl;
-    std::cout<< "Xmax: "<<max[0]<<" "<<"Ymax: "<<max[1]<<" "<<"Zmax: "<<max[2]<<endl;
-    
     /* Set LOD information */
     lods[0]->SetLOD(max, min);
     

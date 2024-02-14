@@ -1,6 +1,6 @@
 #include "LOD.h"
 
-LOD::LOD(int l) :  level(l), totalTriCount(0), totalVertCount(0), step(0.0f), cubeLength(0.0f){
+LOD::LOD(int l) : level(l), totalTriCount(0), totalVertCount(0), step(0.0f), cubeLength(0.0f){
     lodSize = 1 << l;
     cubeTable.clear() ;             
 }

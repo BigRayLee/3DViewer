@@ -21,6 +21,7 @@ struct ModelReader{
     ModelReader();  
     ~ModelReader();
     void GetMaxMin(float x, float y, float z);  
+    void CalculateNormals();
     int InputModel(string fileName);             /*  Read model */
     int PlyParser(const char *fileName);         /* .ply parser */
     int ObjParser(const char* fileName);         /* .obj parser */
