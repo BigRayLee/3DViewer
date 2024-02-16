@@ -4,15 +4,10 @@
 #include <string>
 #include <vector>
 #include <stack>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include <algorithm>
 #include <utility>
 #include <unordered_map>
 #include <queue>
-#include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
 #include "Shader.h"
 #include "Camera.h"
 #include "HLOD.h"
@@ -23,14 +18,13 @@
 
 using namespace std;
 
-float CalculateDistanceToCube(float cubeBottom[3], glm::vec3 viewpoint, glm::mat4 model, glm::mat4 view, float cubeLength);
+void SelectCubeVisbility(LOD *meshbook[], int maxLevel, Mat4& pvmMat, Mat4& model);
 
-int Display(HLOD &multiResoModel, int maxLevel);
+int LoadChildCube(int parentCoord[3], LOD *meshbook[], Mat4& pvmMat, Mat4& model, Camera* camera, int maxLevel, int curLevel);
 
-int LoadChildCube(int parentCoord[3], LOD *meshbook[], 
-                 glm::mat4 projection, glm::mat4 view, glm::mat4 model, Camera* camera, int maxLevel, int curLevel);
-
-void SelectCubeVisbility(LOD *meshbook[], int maxLevel, glm::mat4 model, glm::mat4 view, glm::mat4 projection);
+float CalculateDistanceToCube(float cubeBottom[3], Vec3 viewpoint, Mat4& model, float cubeLength);
 
 bool AfterFrustumCulling(Cube &cube, Mat4 pvm);
+
+int Display(HLOD &multiResoModel, int maxLevel);
 

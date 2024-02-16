@@ -17,15 +17,9 @@ struct Cube{
     float top[3]{FLT_MIN, FLT_MIN, FLT_MIN};
     int coord[3];                                  
     uint64_t coord64;                              
-    size_t vertexOffset = 0;                    
-    size_t normalOffset = 0;                    
-    size_t uvOffset = 0;                        
-    size_t idxOffset = 0;                    
-    size_t remapOffset = 0;            
-    size_t colorOffset = 0;            
+    size_t vertexOffset = 0;                                     
+    size_t idxOffset = 0;                                      
     int vertCount = 0;
-    int uvCount = 0;
-    int idxUVCount = 0;
     int triangleCount = 0;            
 
     Cube();

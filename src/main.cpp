@@ -7,7 +7,7 @@
 #include "Chrono.h"
 
 const float errSimplify = 0.01;
-const unsigned TargetCubeIndexCount = 1 << 14;
+const unsigned TargetCubeIndexCount = 1 << 15;
 
 using namespace std;
 

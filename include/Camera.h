@@ -6,7 +6,6 @@
 #include "math/geometry.h"
 #include "math/aabb.h"
 #include "Frustum.h"
-#include <glm/glm.hpp>
 
 struct Camera 
 {
@@ -151,56 +150,6 @@ struct Camera
 	 */
 	Vec3 view_coord_at (float x, float y, float depth) const;
 	Vec3 world_coord_at(float x, float y, float depth) const;
-
-	/*transfer Mat4 to glm::mat4*/
-	glm::mat4 Mat4ToGLM(Mat4 mat){
-		glm::mat4 M(1.0);
-		M[0][0] = mat(0, 0);
-		M[0][1] = mat(1, 0);
-		M[0][2] = mat(2, 0);
-		M[0][3] = mat(3, 0);
-
-		M[1][0] = mat(0, 1);
-		M[1][1] = mat(1, 1);
-		M[1][2] = mat(2, 1);
-		M[1][3] = mat(3, 1);
-
-		M[2][0] =  mat(0, 2);
-		M[2][1] =  mat(1, 2);
-		M[2][2] =  mat(2, 2);
-		M[2][3] =  mat(3, 2);
-
-		M[3][0] =  mat(0, 3);
-		M[3][1] =  mat(1, 3);
-		M[3][2] =  mat(2, 3);
-		M[3][3] =  mat(3, 3);
-		return M;
-	}
-
-	/*transfer Mat4 to glm::mat4*/
-	Mat4 GlmToMAT4(glm::mat4 M){
-		Mat4 mat;
-		mat(0, 0) = M[0][0];
-		mat(1, 0) = M[0][1];
-		mat(2, 0) = M[0][2];
-		mat(3, 0) = M[0][3];
-
-		mat(0, 1) = M[1][0];
-		mat(1, 1) = M[1][1];
-		mat(2, 1) = M[1][2];
-		mat(3, 1) = M[1][3];
-
-		mat(0, 2) = M[2][0];
-		mat(1, 2) = M[2][1];
-		mat(2, 2) = M[2][2];
-		mat(3, 2) = M[2][3];
-
-		mat(0, 3) = M[3][0];
-		mat(1, 3) = M[3][1];
-		mat(2, 3) = M[3][2];
-		mat(3, 3) = M[3][3];
-		return mat;
-	}
 
 	/* Space configuration */
 	Quat  rotation  = Quat::Identity;

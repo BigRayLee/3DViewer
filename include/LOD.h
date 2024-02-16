@@ -21,7 +21,7 @@ struct LOD{
     size_t totalTriCount = 0;
     size_t totalVertCount = 0;
     int level;                                     /* level*/
-    int lodSize;                                   /* grid size 1<<L */ 
+    int lodSize;                                   /* grid size 1 << L */ 
     float step;
     float cubeLength;                          
 

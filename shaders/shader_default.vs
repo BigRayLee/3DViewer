@@ -7,8 +7,7 @@ layout (location = 2) in int idx;
 layout(std430, binding = 0) restrict readonly buffer positions {float parentPos[];};
 layout(std430, binding = 1) restrict readonly buffer normals {float parentNormal[];};
 
-layout (std140, binding = 0) uniform Matrices
-{
+layout (std140, binding = 0) uniform Matrices{
     mat4 projection;
     mat4 view;
     mat4 model;

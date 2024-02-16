@@ -62,7 +62,6 @@ cursor_position_callback(GLFWwindow* window, double xpos, double ypos){
 static void
 scroll_callback(GLFWwindow* window, double xoffset, double yoffset){
 	Viewer* viewer = (Viewer *)glfwGetWindowUserPointer(window);
-	
 	if (viewer->imgui->io->WantCaptureMouse){
 		return;
 	}
@@ -108,15 +107,13 @@ void Viewer::MousePressed(float px, float py, int button, int mod){
 	target = camera->world_coord_at(px / width, py / height, pixels[0]);
 }
 
-void Viewer::MouseReleased(int button, int mods)
-{
+void Viewer::MouseReleased(int button, int mods){
 	(void)button;
 	(void) mods;
 	isMousePressed = false;
 }
 
-void Viewer::MouseMove(float px, float py)
-{
+void Viewer::MouseMove(float px, float py){
 	if (!isMousePressed) return;
 	
 	if (mods & GLFW_MOD_SHIFT){
@@ -167,8 +164,7 @@ void Viewer::MouseMove(float px, float py)
 	}
 }
 
-void Viewer::MouseScroll(float xoffset, float yoffset)
-{
+void Viewer::MouseScroll(float xoffset, float yoffset){
 	(void)xoffset;
 	Vec3 old_pos = camera->get_position();
 	Vec3 new_pos = target + exp(-SC_ZOOM_SENSITIVITY * yoffset) * (old_pos - target);

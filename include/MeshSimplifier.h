@@ -7,15 +7,13 @@
 struct Block{
     size_t maxIdxCount;
     size_t maxVertexCount;
-    size_t maxIdxUVCount;
-    size_t maxUVCount;
     Boxcoord *list;                        /* valid block list */
     unsigned int maxBoxCount;
     unsigned short validBoxCount;          /* valid box count */
     unsigned short width;                  /* block width */
 };
 
-/* Parallel thread parameters*/
+/* Parallel thread parameters */
 struct Parameter{
     HLOD  *hlod;
     Block *simplifyBlks;
@@ -24,7 +22,6 @@ struct Parameter{
     float targetError;
 };
 
-/* Compute the maximum vertex count and index count of cube at different lods */
 unsigned ComputeMaxCounts(HLOD *hlod, int curLevel, Block* blk);
 
 size_t RemapIndexBufferSkipDegenerate(uint32_t *indices, size_t index_count, const uint32_t *remap);

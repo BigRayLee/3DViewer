@@ -30,31 +30,8 @@ void BoundingBoxDraw::InitBuffer(Cube& cube, float length){
     glBindVertexArray(0); 
 }
 
-void BoundingBoxDraw::SetShader(Shader *bbxShader, glm::mat4 projection, glm::mat4 view, glm::mat4 model){
-    bbxShader->Use();
-    bbxShader->SetMat4("projection",projection);
-    bbxShader->SetMat4("view",view);
-    bbxShader->SetMat4("model", model);
-}
-
-void BoundingBoxDraw::RenderBiggestBBX(Cube& cube, Shader *bbxShader, float length[3], glm::mat4 projection, glm::mat4 view, glm::mat4 model){
-    glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-    
-    bbxShader->Use();
-    bbxShader->SetMat4("projection",projection);
-    bbxShader->SetMat4("view",view);
-    bbxShader->SetMat4("model", model);
-    
-    glLineWidth(2.0f);
-
-    glBindVertexArray(bbxVAO);
-    glDrawElementsBaseVertex(GL_LINES, 24, GL_UNSIGNED_INT, (GLvoid*)(0),  0);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-}
-
 void BoundingBoxDraw::Render(Cube& cube, Shader* bbxShader, float length, int level){
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
     uint64_t ijk_info = (uint64_t) (cube.coord[0]) | ((uint64_t)(cube.coord[1])<<16) | ((uint64_t)(cube.coord[2]) << 32) | ((uint64_t)(level) << 48);
     if(vboOffset.count(ijk_info) == 0 && eboOffset.count(ijk_info) == 0){
         vertexOffset = vertexOffset + 8 * 3 * sizeof(float);

@@ -32,8 +32,6 @@ struct Viewer {
 	Camera* camera;                   
     float deltaTime = 0.0f;              /* timing */
     float lastFrame = 0.0f;
-    float kappa = 4.0f;                  /* adaptive LOD parameters */
-    float sigma = 0.1f;
     float scale = 1.0f;                  /* model scale */
 	int width;                           /* TODO viewport instead */
 	int height;

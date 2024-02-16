@@ -191,11 +191,6 @@ unsigned ComputeMaxCounts(HLOD *hlod, int curLevel, Block* blk){
                 index_count = dest.idxCount;
                 vertex_count = dest.posCount;
 
-                if (modelAttriSatus.hasSingleTexture || modelAttriSatus.hasMultiTexture){
-                    index_uv_count = dest.idxUVCount;
-                    uv_count = dest.uvCount;
-                }
-
                 if (box_count == 0){
                     continue;
                 }
@@ -206,22 +201,12 @@ unsigned ComputeMaxCounts(HLOD *hlod, int curLevel, Block* blk){
                 maxBoxCount = box_count > maxBoxCount ? box_count : maxBoxCount;
                 maxIdxCount = index_count > maxIdxCount ? index_count : maxIdxCount;
                 maxVertexCount = vertex_count > maxVertexCount ? vertex_count : maxVertexCount;
-
-                if (modelAttriSatus.hasSingleTexture || modelAttriSatus.hasMultiTexture){
-                    maxIdxUVCount = index_uv_count > maxIdxUVCount ? index_uv_count : maxIdxUVCount;
-                    maxUVCount = uv_count > maxUVCount ? uv_count : maxUVCount;
-                }
             }
         }
     }
     blk->maxIdxCount = maxIdxCount;
     blk->maxVertexCount = maxVertexCount;
     blk->validBoxCount = blockCount;
-
-    if (modelAttriSatus.hasSingleTexture || modelAttriSatus.hasMultiTexture){
-        blk->maxIdxUVCount = maxIdxUVCount;
-        blk->maxUVCount = maxUVCount;
-    }
 
     return maxBoxCount;
 }
@@ -437,7 +422,7 @@ void LODConstructor(HLOD *hlod, int curLevel, int width, float targetError){
     /* Parent cube construction block information */
     Block parentBlks;
     parentBlks.width = 2;
-    parentBlks.list = (Boxcoord *)calloc(maxBlkCount, (maxBlkCount) * 3 * sizeof(unsigned short));
+    parentBlks.list = (Boxcoord *)calloc(maxBlkCount, maxBlkCount * 3 * sizeof(unsigned short));
     parentBlks.maxBoxCount = ComputeMaxCounts(hlod, curLevel, &parentBlks);
 
     /* Thread parameter */

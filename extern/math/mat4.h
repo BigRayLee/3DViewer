@@ -18,6 +18,8 @@ struct TMat4 {
 	const TVec4<T>& operator()(int i) const;
 	TVec4<T>& operator()(int i);
 
+	/* Static member */
+	static const TMat4 Indentity;
 };
 
 typedef TMat4<float> Mat4;
@@ -26,6 +28,14 @@ typedef TMat4<float> Mat4;
 
 template <typename T>
 TMat4<T> operator* (const TMat4<T>& m1, const TMat4<T>& m2);
+
+/* Static numbers */
+template <typename T>
+const TMat4<T> TMat4<T>::Indentity = { TVec4<T>{1.0f, 0.0f, 0.0f, 0.0f},
+									   TVec4<T>{0.0f, 1.0f, 0.0f, 0.0f},
+									   TVec4<T>{0.0f, 0.0f, 1.0f, 0.0f},
+									   TVec4<T>{0.0f, 0.0f, 0.0f, 1.0f}
+									 };
 
 /* Implementations */
 
@@ -81,4 +91,16 @@ void print(const TMat4<T>& m)
 	printf("%.3f %.3f %.3f %.3f\n", m(1,0), m(1,1), m(1,2), m(1,3));
 	printf("%.3f %.3f %.3f %.3f\n", m(2,0), m(2,1), m(2,2), m(2,3));
 	printf("%.3f %.3f %.3f %.3f\n", m(3,0), m(3,1), m(3,2), m(3,3));
+}
+
+
+template <typename T>
+TMat4<T> operator* (const float scale, const TMat4<T>& m){
+	TMat4<T> m1;
+	m1(0) = scale * m(0);
+	m1(1) = scale * m(1);
+	m1(2) = scale * m(2);
+	m1(3) = m(3);
+
+	return m1;
 }

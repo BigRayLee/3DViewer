@@ -19,8 +19,7 @@ Vec3 world_trackball(float x, float y, const Vec3& center, float radius, const C
 	Vec3 view_dir = center - camera.get_position();
 	float len = norm(view_dir);
 
-	if (len == 0) 
-	{
+	if (len == 0){
 		return Vec3::ZAxis;
 	}
 	view_dir *= (1.f / len);
@@ -30,8 +29,7 @@ Vec3 world_trackball(float x, float y, const Vec3& center, float radius, const C
 	Ray ray = camera.world_ray_at(x, y);
 	Vec4 test = ray_plane_intersection(ray, tg_plane);
 
-	if (test.w == 0)
-	{
+	if (test.w == 0){
 		return Vec3::ZAxis;
 	}
 

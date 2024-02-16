@@ -38,9 +38,7 @@ void Dispatch(int xyz[3], unordered_map<uint64_t,Cube >&table){
         cube.coord[2] = xyz[2];
 
         cube.coord64 = coord;
-
         cube.triangleCount += 1;
-
         pair<uint64_t, Cube> p(coord, cube);
         table.insert(p);
     }
@@ -53,9 +51,7 @@ void Dispatch(int xyz[3], unordered_map<uint64_t,Cube >&table){
             cube.coord[2] = xyz[2];
 
             cube.triangleCount += 1;
-
             cube.coord64 = coord;
-
             pair<uint64_t, Cube> p(coord, cube);
             table.insert(p);
         }
@@ -63,5 +59,6 @@ void Dispatch(int xyz[3], unordered_map<uint64_t,Cube >&table){
             table[coord].triangleCount += 1;
         }
     }
+
 }
 

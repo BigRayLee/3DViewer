@@ -33,7 +33,6 @@ void ImguiLayer::ImguiDraw(size_t &tri_num){
     
     ImGui::Checkbox("LOD Adaptive ", &isAdaptiveLOD);
     ImGui::DragFloat("kappa", &kappa, 0.1, 1, 20, "%.1f");
-    ImGui::DragFloat("sigma", &sigma, 0.01, 0.0, 1.0, "%.1f");
 
     ImGui::Text("\n");
     ImGui::Text("Display Option");    
@@ -100,6 +99,7 @@ void ImguiLayer::ImguiDraw(size_t &tri_num){
     for(int i = 0; i < values_offset ; ++ i){
         value_sum += values[values_offset];
     }
+
     string plot_str = std::to_string( value_sum/values_offset );
     ImGui::PlotLines("Frame Times", values, IM_ARRAYSIZE(values), values_offset, plot_str.c_str(), 0.0f, 36.00f, ImVec2(0,40));
 
@@ -126,7 +126,6 @@ void ImguiLayer::ImguiClean(){
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
-
 }
 
 ImguiLayer::ImguiLayer(){}
