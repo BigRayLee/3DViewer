@@ -52,8 +52,7 @@ constexpr bool reversed_y = NDC_REVERSED_Y ? true : false;
 constexpr bool reversed_z = NDC_REVERSED_Z ? true : false;
 constexpr bool z_zero_one = NDC_Z_ZERO_ONE ? true : false;
 
-constexpr glm::vec3 nwd_to_ndc(float x, float y, float depth)
-{
+constexpr glm::vec3 nwd_to_ndc(float x, float y, float depth){
 	glm::vec3 ndc {0, 0, 0};
 
 	ndc.x = 2.f * x - 1.f;

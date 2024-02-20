@@ -7,8 +7,7 @@
 #include <chrono>
 #include <thread>
 
-struct ImguiLayer
-{
+struct ImguiLayer{
     ImVec4 color = {1.0f, 1.0f, 1.0f, 1.0f};    /* Clean color*/
     ImGuiIO *io;
     size_t inputVertexCount = 0;                /* Original model info*/ 
