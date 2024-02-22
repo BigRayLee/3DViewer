@@ -8,12 +8,12 @@ float* ComputeNormal(float* vertices, uint32_t* indices, size_t vertCount, size_
 
     /* Position map */
     uint32_t *remap = (uint32_t*)malloc(vertCount * sizeof(uint32_t));
-    float* unique_vertices = (float*)malloc(vertCount * sizeof(float) * 3);
-    size_t unique_vertCount = meshopt_generateVertexRemap(remap, NULL, vertCount, vertices, vertCount, 3 * sizeof(float));
+    float* uniqueVertices = (float*)malloc(vertCount * sizeof(float) * 3);
+    size_t uniqueVertexCount = meshopt_generateVertexRemap(remap, NULL, vertCount, vertices, vertCount, 3 * sizeof(float));
 
     /* Initialize the normals */
     for(size_t i = 0; i < 3 * vertCount; ++i){
-        normals[i] = 0.0;
+        normals[i] = 0.0f;
     }
 
     for(size_t i = 0; i < indexCount; i = i + 3){
@@ -43,7 +43,7 @@ float* ComputeNormal(float* vertices, uint32_t* indices, size_t vertCount, size_
 	}
 
     MemoryFree(remap);
-    MemoryFree(unique_vertices);
+    MemoryFree(uniqueVertices);
 
     return normals;
 }

@@ -81,7 +81,7 @@ int ModelReader::PlyParser(const char *fileName)
         reader.find_pos(pos_idx);
         size_t vertex_count = reader.num_rows();
         vertCount = vertex_count;
-        cout << "vertex: " << vertex_count << " ";
+        cout << "vertex: " << vertCount << " ";
 
         /* Extract the positions */
         meshData->positions = (float *)malloc(vertex_count * 3 * sizeof(float));
@@ -119,7 +119,7 @@ int ModelReader::PlyParser(const char *fileName)
         reader.find_indices(idx);
         index_count = reader.num_rows() * 3;
         triCount = index_count / 3;
-        cout << "index: " << index_count << " ";
+        cout << "index: " << triCount * 3 << " ";
         meshData->indices = (uint32_t *)malloc(index_count * sizeof(uint32_t));
         reader.extract_list_property(idx[0], PLYPropertyType::Int, meshData->indices);
 
@@ -130,7 +130,7 @@ int ModelReader::PlyParser(const char *fileName)
 
 void ModelReader::CalculateNormals(){
     cout <<"the normal does not exist, compute normal..." << endl;
-    meshData->normals = (float *)malloc(3 * vertCount * sizeof(float));
+    meshData->normals = (float *)malloc(vertCount * VERTEX_STRIDE);
     meshData->normals = ComputeNormal(meshData->positions, meshData->indices, vertCount, triCount * 3);
     modelAttriSatus.hasNormal = true;
 }

@@ -185,8 +185,8 @@ int Display(HLOD &multiResModel, int maxLevel){
     Shader *shader = new Shader();
     Shader *bbxShader = new Shader();
     BoundingBoxDraw* bbxDrawer = new BoundingBoxDraw();
-    string vs_shader = "./shaders/shader_default.vs";
-    string fs_shader = "./shaders/shader_light.fs";
+    string vertexShader = "./shaders/defaultShader.vs";
+    string fragmentShader = "./shaders/defaultShader.fs"; 
     float maxModelSize = multiResModel.lods[maxLevel]->cubeLength;
     GLuint vao;                   
     GLuint uboMatices;            
@@ -230,11 +230,11 @@ int Display(HLOD &multiResModel, int maxLevel){
     BindVAOBuffer(vao);
 
     /* Build shader */
-    shader->Build(vs_shader.c_str(), fs_shader.c_str());
+    shader->Build(vertexShader.c_str(), fragmentShader.c_str());
     unsigned int uniformBlockIndexVertex = glGetUniformBlockIndex(shader->ID, "Matrices");
     glUniformBlockBinding(shader->ID, uniformBlockIndexVertex, 0);
 
-    bbxShader->Build("./shaders/shader_bbx.vs", "./shaders/shader_bbx.fs");
+    bbxShader->Build("./shaders/BbxShader.vs", "./shaders/BbxShader.fs");
     unsigned int uniformBlockIndexBBX = glGetUniformBlockIndex(bbxShader->ID, "Matrices");
     glUniformBlockBinding(bbxShader->ID, uniformBlockIndexBBX, 0);
     
