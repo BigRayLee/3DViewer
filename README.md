@@ -34,6 +34,11 @@ The overview is as follows (The colorization of the different LODs):
 
   ./bin/viewer model_filepath
 
+## Whole process demo
+* The whole process of multi-resolution model construction (13 seconds) and real-time rendering of 
+David (56M triangles) on a desktop without discrete GPU.
+[Video](https://drive.google.com/file/d/1Bvap6nMnORaNZWae_VR1cZG3CoR3PN04/view?usp=drive_link)
+
 ## Relate publications
 * [View-dependent Adaptive HLOD: real-time interactive rendering of multi-resolution models.](https://doi.org/10.1145/3626495.3626507) In European Conference on Visual Media Production (CVMP ’23).
 
