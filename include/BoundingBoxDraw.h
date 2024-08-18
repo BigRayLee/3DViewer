@@ -21,6 +21,6 @@ struct BoundingBoxDraw
     ~BoundingBoxDraw();
 
     void InitBuffer(Cube &cube, float length);
-    void Render(Cube &cube, Shader* bbxShader, float length, int level);
+    void Render(Cube &cube, Shader *bbxShader, float length, int level);
     void FlushBuffer(Cube &cube);
 };

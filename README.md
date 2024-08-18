@@ -34,6 +34,12 @@ The overview is as follows (The colorization of the different LODs):
 
   ./bin/viewer model_filepath
 
+## How to move object in 3D Viewer
+
+* Zoom: Middle Mouse Button / Ctrl + Left Mouse Button
+* Rotate Object: Left Mouse Button
+* Translate Object: Shift + Left Mouse Button
+
 ## Whole process demo
 * The whole process of multi-resolution model construction (13 seconds) and real-time rendering of 
 David (56M triangles) on a desktop without discrete GPU.

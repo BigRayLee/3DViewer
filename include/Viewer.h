@@ -4,8 +4,10 @@
 #include "Camera.h"
 #include "ImguiLayer.h"
 
-namespace NavMode {
-	enum {
+namespace NavMode
+{
+	enum
+	{
 		Orbit,
 		Free,
 		Walk,
@@ -13,7 +15,8 @@ namespace NavMode {
 	};
 };
 
-struct Viewer {
+struct Viewer
+{
 	/* Camera */
 	Quat  lastCameraRot;
 	Vec3  lastCameraPos;
@@ -26,11 +29,11 @@ struct Viewer {
 	float lastClickY;
 
 	static constexpr unsigned SC_SCR_WIDTH =  1920; 
-    static constexpr unsigned SC_SCR_HEIGHT = 1080; 
-    GLFWwindow* window;
-	ImguiLayer* imgui;  	               
-	Camera* camera;                   
-    float deltaTime = 0.0f;              /* timing */
+    static constexpr unsigned SC_SCR_HEIGHT = 1080;
+	GLFWwindow *window;
+	ImguiLayer *imgui;
+	Camera *camera;
+	float deltaTime = 0.0f;              /* timing */
     float lastFrame = 0.0f;
     float scale = 1.0f;                  /* model scale */
 	int width;                           /* TODO viewport instead */
@@ -40,12 +43,12 @@ struct Viewer {
 	bool isMousePressed = false;
 
 	Viewer();
-    bool Init(int w, int h);
+	bool Init(int w, int h);
 	void InitGlfwFunctions();
 	void MousePressed(float px, float py, int button, int mod);
 	void MouseReleased(int button, int mod);
 	void MouseMove(float px, float py);
 	void MouseScroll(float xoffset, float yoffset);
 	void KeyPressed(int key, int action);
-	void ProcessInput(GLFWwindow * window);
+	void ProcessInput(GLFWwindow *window);
 };

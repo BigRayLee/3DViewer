@@ -6,39 +6,52 @@
 #include "fast_obj/fast_obj.h"
 #undef FAST_OBJ_IMPLEMENTATION
 
-ModelReader::ModelReader() {
+ModelReader::ModelReader()
+{
     meshData = new Mesh;
 }
 
-ModelReader::~ModelReader(){
-    if(meshData->positions) MemoryFree(meshData->positions);
-    if(meshData->indices) MemoryFree(meshData->indices);
-    if(modelAttriSatus.hasNormal && meshData->normals) MemoryFree(meshData->normals);
-    if(modelAttriSatus.hasColor && meshData->colors) MemoryFree(meshData->colors);
+ModelReader::~ModelReader()
+{
+    if (meshData->positions)
+        MemoryFree(meshData->positions);
+    if (meshData->indices)
+        MemoryFree(meshData->indices);
+    if (modelAttriSatus.hasNormal && meshData->normals)
+        MemoryFree(meshData->normals);
+    if (modelAttriSatus.hasColor && meshData->colors)
+        MemoryFree(meshData->colors);
 
-    if ((modelAttriSatus.hasSingleTexture || modelAttriSatus.hasMultiTexture) && meshData->uvs && meshData->indicesUV){
+    if ((modelAttriSatus.hasSingleTexture || modelAttriSatus.hasMultiTexture) && meshData->uvs && meshData->indicesUV)
+    {
         MemoryFree(meshData->uvs);
         MemoryFree(meshData->indicesUV);
     }
 }
 
-int ModelReader::InputModel(string fileName){
-    if (fileName.substr(fileName.length() - 3, fileName.length()) == "ply"){
+int ModelReader::InputModel(string fileName)
+{
+    if (fileName.substr(fileName.length() - 3, fileName.length()) == "ply")
+    {
         cout << "Reading Ply file...";
-        if (PlyParser(fileName.c_str())){
+        if (PlyParser(fileName.c_str()))
+        {
             printf("Error reading PLY file.\n");
         }
     }
-    else if (fileName.substr(fileName.length() - 3, fileName.length()) == "obj"){
+    else if (fileName.substr(fileName.length() - 3, fileName.length()) == "obj")
+    {
         cout << "Reading Obj file...";
         ObjParser(fileName.c_str());
     }
-    else if (fileName.substr(fileName.length() - 3, fileName.length()) == "txt"){
+    else if (fileName.substr(fileName.length() - 3, fileName.length()) == "txt")
+    {
         cout << "Reading BBX file..."
              << " ";
         BbxParser(fileName.c_str());
     }
-    else{
+    else
+    {
         cout << "Unsupported (yet) file type extension" << endl;
         return -1;
     }
@@ -48,14 +61,20 @@ int ModelReader::InputModel(string fileName){
 
 void ModelReader::GetMaxMin(float x, float y, float z)
 {
-    if (x < min[0]) min[0] = x;
-    if (x > max[0]) max[0] = x;
+    if (x < min[0])
+        min[0] = x;
+    if (x > max[0])
+        max[0] = x;
 
-    if (y < min[1]) min[1] = y;
-    if (y > max[1]) max[1] = y;
+    if (y < min[1])
+        min[1] = y;
+    if (y > max[1])
+        max[1] = y;
 
-    if (z < min[2]) min[2] = z;
-    if (z > max[2]) max[2] = z;
+    if (z < min[2])
+        min[2] = z;
+    if (z > max[2])
+        max[2] = z;
 }
 
 int ModelReader::PlyParser(const char *fileName)
@@ -65,17 +84,20 @@ int ModelReader::PlyParser(const char *fileName)
     size_t index_count = 0;
 
     cout << "file name : " << fileName << endl;
-    if (!reader.valid()){
+    if (!reader.valid())
+    {
         return -1;
     }
 
     /* TODO get the texture file path */
     /* Vertex element */
-    if (!reader.element_is(kPLYVertexElement)){
+    if (!reader.element_is(kPLYVertexElement))
+    {
         cout << "missing vertex elements" << endl;
         return -1;
     }
-    else{
+    else
+    {
         uint32_t pos_idx[3];
         reader.load_element();
         reader.find_pos(pos_idx);
@@ -89,25 +111,29 @@ int ModelReader::PlyParser(const char *fileName)
 
         /* Extract the normals */
         uint32_t nml_idx[3];
-        if (reader.find_normal(nml_idx)){
+        if (reader.find_normal(nml_idx))
+        {
             meshData->normals = (float *)malloc(vertex_count * 3 * sizeof(float));
             reader.extract_properties(nml_idx, 3, PLYPropertyType::Float, meshData->normals);
         }
-        else{
+        else
+        {
             modelAttriSatus.hasNormal = false;
         }
-
     }
 
     /*face element*/
     reader.next_element();
-    if (!reader.element_is(kPLYFaceElement)){
+    if (!reader.element_is(kPLYFaceElement))
+    {
         cout << "missing face elements" << endl;
         return -1;
     }
-    else{
+    else
+    {
         /* Indices */
-        if (!reader.load_element()){
+        if (!reader.load_element())
+        {
             cout << "can not read faces." << endl;
             return -1;
         }
@@ -122,14 +148,14 @@ int ModelReader::PlyParser(const char *fileName)
         cout << "index: " << triCount * 3 << " ";
         meshData->indices = (uint32_t *)malloc(index_count * sizeof(uint32_t));
         reader.extract_list_property(idx[0], PLYPropertyType::Int, meshData->indices);
-
     }
 
     return 0;
 }
 
-void ModelReader::CalculateNormals(){
-    cout <<"the normal does not exist, compute normal..." << endl;
+void ModelReader::CalculateNormals()
+{
+    cout << "Normal does not exist, compute normal..." << endl;
     meshData->normals = (float *)malloc(vertCount * VERTEX_STRIDE);
     meshData->normals = ComputeNormal(meshData->positions, meshData->indices, vertCount, triCount * 3);
     modelAttriSatus.hasNormal = true;
@@ -139,22 +165,27 @@ int ModelReader::ObjParser(const char *fileName)
 {
     fastObjMesh *obj = fast_obj_read(fileName);
 
-    if (obj == nullptr){
+    if (obj == nullptr)
+    {
         cout << "Error reading obj file." << endl;
         return -1;
     }
 
-    if (obj->group_count == 1 && obj->materials->map_Kd.name){
+    if (obj->group_count == 1 && obj->materials->map_Kd.name)
+    {
         modelAttriSatus.hasSingleTexture = true;
         texturesPath.push_back(obj->materials->map_Kd.path);
     }
-    else if (obj->group_count > 1){
+    else if (obj->group_count > 1)
+    {
         modelAttriSatus.hasMultiTexture = true;
-        for (int k = 1; k < obj->material_count; ++k){
+        for (int k = 1; k < obj->material_count; ++k)
+        {
             texturesPath.push_back(obj->materials[k].map_Kd.path);
         }
     }
-    else{
+    else
+    {
         modelAttriSatus.hasSingleTexture = false;
         modelAttriSatus.hasMultiTexture = false;
     }
@@ -163,7 +194,8 @@ int ModelReader::ObjParser(const char *fileName)
     size_t index_count = 0;
     size_t texture_count = 0;
 
-    for (int i = 0; i < obj->face_count; ++i){
+    for (int i = 0; i < obj->face_count; ++i)
+    {
         index_count += 3 * (obj->face_vertices[i] - 2);
     }
 
@@ -172,13 +204,16 @@ int ModelReader::ObjParser(const char *fileName)
     meshData->uvs = (float *)malloc(2 * index_count * sizeof(float));
 
     /* Operate all the thing based on the group */
-    for (int k = 0; k < obj->group_count; ++k){
+    for (int k = 0; k < obj->group_count; ++k)
+    {
         size_t index_offset = obj->groups[k].face_offset * 3;
         size_t vertex_offset = 0;
 
         float max_uv_x = 0.0, max_uv_y = 0.0;
-        for (size_t i = 0; i < obj->groups[k].face_count; ++i){
-            for (size_t j = 0; j < obj->face_vertices[i]; ++j){
+        for (size_t i = 0; i < obj->groups[k].face_count; ++i)
+        {
+            for (size_t j = 0; j < obj->face_vertices[i]; ++j)
+            {
                 fastObjIndex gi = obj->indices[index_offset + j];
 
                 /* if the j > 3, triangulate polygon on the fly; offset-3 is always the first polygon vertex */
@@ -193,29 +228,35 @@ int ModelReader::ObjParser(const char *fileName)
                 memcpy(&meshData->positions[3 * (index_offset + j)], &obj->positions[gi.p * 3], 3 * sizeof(float));
 
                 /* Normals */
-                if (!gi.n){
+                if (!gi.n)
+                {
                     modelAttriSatus.hasNormal = false;
                 }
-                else{
+                else
+                {
                     memcpy(&meshData->normals[3 * (index_offset + j)], &obj->normals[gi.n * 3], 3 * sizeof(float));
                 }
 
                 /* Textcoord */
-                if (gi.t){
+                if (gi.t)
+                {
                     memcpy(&meshData->uvs[2 * (index_offset + j)], &obj->texcoords[gi.t * 2], 2 * sizeof(float));
-                    if (max_uv_x < meshData->uvs[2 * (index_offset + j)]){
+                    if (max_uv_x < meshData->uvs[2 * (index_offset + j)])
+                    {
                         max_uv_x = meshData->uvs[2 * (index_offset + j)];
                     }
-                        
-                    if (max_uv_y < meshData->uvs[2 * (index_offset + j) + 1]){
+
+                    if (max_uv_y < meshData->uvs[2 * (index_offset + j) + 1])
+                    {
                         max_uv_y = meshData->uvs[2 * (index_offset + j) + 1];
                     }
-                        
+
                     meshData->uvs[2 * (index_offset + j) + 1] += k;
                 }
 
                 /* If the j > 3, triangulate polygon on the fly; offset-3 is always the first polygon vertex */
-                if (j >= 3){
+                if (j >= 3)
+                {
                     meshData->positions[vertex_offset + 0] = meshData->positions[vertex_offset - 3];
                     meshData->positions[vertex_offset + 1] = meshData->positions[vertex_offset - 1];
                     vertex_offset += 2;
@@ -239,12 +280,14 @@ int ModelReader::ObjParser(const char *fileName)
     /* Realloc the buffer */
     meshData->positions = (float *)realloc(meshData->positions, 3 * vertex_count * sizeof(float));
 
-    if (modelAttriSatus.hasNormal){
+    if (modelAttriSatus.hasNormal)
+    {
         meshopt_remapVertexBuffer(meshData->normals, meshData->normals, index_count, sizeof(float) * 3, remap);
         meshData->normals = (float *)realloc(meshData->normals, 3 * vertex_count * sizeof(float));
     }
 
-    if (modelAttriSatus.hasSingleTexture){
+    if (modelAttriSatus.hasSingleTexture)
+    {
         uint32_t *remap_tex = (uint32_t *)malloc(index_count * sizeof(uint32_t));
         meshData->indicesUV = (uint32_t *)malloc(index_count * sizeof(uint32_t));
 
@@ -257,7 +300,8 @@ int ModelReader::ObjParser(const char *fileName)
 
         MemoryFree(remap_tex);
     }
-    else{
+    else
+    {
         uint32_t *remap_tex = (uint32_t *)malloc(index_count * sizeof(uint32_t));
         meshData->indicesUV = (uint32_t *)malloc(index_count * sizeof(uint32_t));
 
@@ -287,12 +331,13 @@ int ModelReader::BbxParser(const char *fileName)
     cout << fileName << endl;
     ifstream file;
     file.open(fileName, ios::in | ios::binary);
-    
+
     string cubeCoord;
     getline(file, cubeCoord, '\n');
     size_t vertCount = 0, idxCount = 0;
 
-    while (file.peek() != EOF){
+    while (file.peek() != EOF)
+    {
         string vertCountStr;
         getline(file, vertCountStr, '\n');
         vertCount = std::stoi(vertCountStr);
@@ -305,17 +350,19 @@ int ModelReader::BbxParser(const char *fileName)
 
         cout << "reading test: " << cubeCoord << " " << vertCount << " " << idxCount << endl;
         file.read((char *)(meshData->positions), vertCount * 3 * sizeof(float));
-        
+
         file.read((char *)(meshData->indices), idxCount * sizeof(uint32_t));
-        
-        if(file.peek() != EOF){
+
+        if (file.peek() != EOF)
+        {
             meshData->normals = (float *)malloc(sizeof(float) * 3 * vertCount);
             file.read((char *)(meshData->normals), vertCount * 3 * sizeof(float));
             modelAttriSatus.hasNormal = true;
         }
-        if(file.peek() != EOF){
-            meshData->remap = (uint32_t*)malloc(sizeof(uint32_t) * vertCount);
-            file.read((char*)(meshData->remap), vertCount * sizeof(uint32_t));
+        if (file.peek() != EOF)
+        {
+            meshData->remap = (uint32_t *)malloc(sizeof(uint32_t) * vertCount);
+            file.read((char *)(meshData->remap), vertCount * sizeof(uint32_t));
         }
     }
     file.close();
@@ -327,7 +374,6 @@ int ModelReader::BbxParser(const char *fileName)
     cout << "index: " << idxCount << " ";
 
     modelAttriSatus.hasNormal = false;
-    
+
     return 0;
 }
-
