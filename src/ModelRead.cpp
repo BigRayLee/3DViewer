@@ -170,26 +170,21 @@ int ModelReader::ObjParser(const char *fileName)
         cout << "Error reading obj file." << endl;
         return -1;
     }
-
-    if (obj->group_count == 1 && obj->materials->map_Kd.name)
+    
+   for (int k = 0; k < obj->material_count; ++k)
     {
+        const char* path = obj->materials[k].map_Kd.path;
+        if (path && path[0] != '\0')
+            texturesPath.push_back(path);
+    }
+
+    if (texturesPath.size() == 1){
         modelAttriSatus.hasSingleTexture = true;
-        texturesPath.push_back(obj->materials->map_Kd.path);
     }
-    else if (obj->group_count > 1)
-    {
+    else if (texturesPath.size() > 1){
         modelAttriSatus.hasMultiTexture = true;
-        for (int k = 1; k < obj->material_count; ++k)
-        {
-            texturesPath.push_back(obj->materials[k].map_Kd.path);
-        }
     }
-    else
-    {
-        modelAttriSatus.hasSingleTexture = false;
-        modelAttriSatus.hasMultiTexture = false;
-    }
-
+       
     size_t vertex_count = 0;
     size_t index_count = 0;
     size_t texture_count = 0;
@@ -198,77 +193,53 @@ int ModelReader::ObjParser(const char *fileName)
     {
         index_count += 3 * (obj->face_vertices[i] - 2);
     }
-
+        
     meshData->positions = (float *)malloc(3 * index_count * sizeof(float));
-    meshData->normals = (float *)malloc(3 * index_count * sizeof(float));
-    meshData->uvs = (float *)malloc(2 * index_count * sizeof(float));
+    meshData->normals   = (float *)malloc(3 * index_count * sizeof(float));
+    meshData->uvs       = (float *)malloc(2 * index_count * sizeof(float));
 
-    /* Operate all the thing based on the group */
+    size_t write_offset = 0;
     for (int k = 0; k < obj->group_count; ++k)
     {
-        size_t index_offset = obj->groups[k].face_offset * 3;
+        size_t index_offset = obj->groups[k].index_offset; 
         size_t vertex_offset = 0;
 
-        float max_uv_x = 0.0, max_uv_y = 0.0;
         for (size_t i = 0; i < obj->groups[k].face_count; ++i)
         {
-            for (size_t j = 0; j < obj->face_vertices[i]; ++j)
-            {
-                fastObjIndex gi = obj->indices[index_offset + j];
+            unsigned int fv = obj->face_vertices[obj->groups[k].face_offset + i]; 
 
-                /* if the j > 3, triangulate polygon on the fly; offset-3 is always the first polygon vertex */
-                // if (j >= 3)
-                // {
-                //     // memcpy(&positions[3 * vertex_offset], &positions[3* (vertex_offset - 3)], 3 * sizeof(float));
-                //     // memcpy(&positions[3 * (vertex_offset + 1)], &positions[3* (vertex_offset - 1)], 3 * sizeof(float));
-                //     // vertex_offset += 2;
-                // }
+           for (size_t j = 1; j + 1 < fv; ++j)
+           {
+                fastObjIndex gi0 = obj->indices[index_offset];         
+                fastObjIndex gi1 = obj->indices[index_offset + j];     
+                fastObjIndex gi2 = obj->indices[index_offset + j + 1]; 
 
-                /* Positions */
-                memcpy(&meshData->positions[3 * (index_offset + j)], &obj->positions[gi.p * 3], 3 * sizeof(float));
+                auto writeVertex = [&](fastObjIndex gi, int k) {
+                    memcpy(&meshData->positions[3 * write_offset],
+                        &obj->positions[gi.p * 3], 3 * sizeof(float));
 
-                /* Normals */
-                if (!gi.n)
-                {
-                    modelAttriSatus.hasNormal = false;
-                }
-                else
-                {
-                    memcpy(&meshData->normals[3 * (index_offset + j)], &obj->normals[gi.n * 3], 3 * sizeof(float));
-                }
+                    if (gi.n)
+                        memcpy(&meshData->normals[3 * write_offset],
+                            &obj->normals[gi.n * 3], 3 * sizeof(float));
+                    else
+                        modelAttriSatus.hasNormal = false;
 
-                /* Textcoord */
-                if (gi.t)
-                {
-                    memcpy(&meshData->uvs[2 * (index_offset + j)], &obj->texcoords[gi.t * 2], 2 * sizeof(float));
-                    if (max_uv_x < meshData->uvs[2 * (index_offset + j)])
-                    {
-                        max_uv_x = meshData->uvs[2 * (index_offset + j)];
+                    if (gi.t) {
+                        memcpy(&meshData->uvs[2 * write_offset],
+                            &obj->texcoords[gi.t * 2], 2 * sizeof(float));
+                        meshData->uvs[2 * write_offset + 1] += k;
                     }
 
-                    if (max_uv_y < meshData->uvs[2 * (index_offset + j) + 1])
-                    {
-                        max_uv_y = meshData->uvs[2 * (index_offset + j) + 1];
-                    }
+                    write_offset++;
+                };
 
-                    meshData->uvs[2 * (index_offset + j) + 1] += k;
-                }
-
-                /* If the j > 3, triangulate polygon on the fly; offset-3 is always the first polygon vertex */
-                if (j >= 3)
-                {
-                    meshData->positions[vertex_offset + 0] = meshData->positions[vertex_offset - 3];
-                    meshData->positions[vertex_offset + 1] = meshData->positions[vertex_offset - 1];
-                    vertex_offset += 2;
-                }
-
-                vertex_offset++;
+                writeVertex(gi0, k);
+                writeVertex(gi1, k);
+                writeVertex(gi2, k);
             }
-            index_offset += obj->face_vertices[i];
+            index_offset += fv;
         }
     }
-
-    fast_obj_destroy(obj);
 
     uint32_t *remap = (uint32_t *)malloc(index_count * sizeof(uint32_t));
     meshData->indices = (u_int32_t *)malloc(index_count * sizeof(uint32_t));
@@ -322,6 +293,8 @@ int ModelReader::ObjParser(const char *fileName)
     vertCount = vertex_count;
 
     MemoryFree(remap);
+
+    fast_obj_destroy(obj);
 
     return 0;
 }
