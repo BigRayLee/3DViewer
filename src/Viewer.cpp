@@ -212,7 +212,7 @@ void Viewer::InitGlfwFunctions()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_SAMPLES, 4);
 
-	window = glfwCreateWindow(SC_SCR_WIDTH, SC_SCR_HEIGHT, "3DViewer", NULL, NULL);
+	window = glfwCreateWindow(SC_SCR_WIDTH, SC_SCR_HEIGHT, "RayViewer", NULL, NULL);
 
 	if (!window)
 		return;
