@@ -6,7 +6,7 @@ A lightweight 3D viewer can render massive mesh surface model without LOD poppin
 
 The viewer is developed based on C++, OpenGL, GLSL.
 The overview is as follows (The colorization of the different LODs):
-![image]( https://github.com/BigRayLee/3DViewer/blob/master/pic/overview.webm)
+![image]( https://github.com/BigRayLee/3DViewer/blob/master/pic/overview.mov)
 
 * HLOD construction
 * Real-time rendering
