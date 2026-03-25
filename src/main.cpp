@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
     {
         modelReader->CalculateNormals();
     }
-    TimerStop("Nomral Calculation time: ");
+    TimerStop("Normal Calculation time: ");
 
     /* Set the LOD level automatically */
     int level = 2;
