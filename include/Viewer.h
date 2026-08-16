@@ -38,9 +38,10 @@ struct Viewer
     float scale = 1.0f;                  /* model scale */
 	int width;                           /* TODO viewport instead */
 	int height;
-	uint32_t navMode = NavMode::Orbit;  /* Mode */
+	uint32_t navMode = NavMode::Orbit;   /* Mode */
 	bool isFreezeFrame = false;          /* freeze the frame */
 	bool isMousePressed = false;
+	bool requestOfflineRender = false;   /* one-shot offline render request */
 
 	Viewer();
 	bool Init(int w, int h);

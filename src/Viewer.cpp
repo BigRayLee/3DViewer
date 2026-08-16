@@ -238,6 +238,15 @@ void Viewer::InitGlfwFunctions()
 
 void Viewer::ProcessInput(GLFWwindow *window)
 {
+	/* Press R to trigger offline rendering */
+	static bool rWasPressed = false;
+	const bool rIsPressed = glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS;
+	if (rIsPressed && !rWasPressed)
+	{
+		requestOfflineRender = true;
+	}
+	rWasPressed = rIsPressed;
+
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 	{
 		glfwSetWindowShouldClose(window, true);

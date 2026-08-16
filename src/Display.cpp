@@ -1,6 +1,8 @@
 #include "Display.h"
-#include "./math/vec4.h"
-#include "./math/transform.h"
+#include "math/vec4.h"
+#include "math/transform.h"
+#include "OfflineRender.h"
+
 
 Vec3 freezeVp;
 Viewer *viewer = new Viewer;                              /* Initialize the viewer */
@@ -331,6 +333,69 @@ int Display(HLOD &multiResModel, int maxLevel){
         if (!viewer->isFreezeFrame){
             freezeRenderStack = renderStack;
             freezeVp = viewer->camera->position;
+        }
+
+         /* Offline ray tracing (press R) */
+        if (viewer->requestOfflineRender)
+        {
+            viewer->requestOfflineRender = false;
+
+            /* Get the render stack from OpenGL Frame */
+            std::vector<RenderCell> offlineCut;
+            std::stack<std::pair<int, uint64_t>> cutCopy = renderStack;
+            offlineCut.reserve(cutCopy.size());
+
+            while (!cutCopy.empty())
+            {
+                const int logicalLevel = cutCopy.top().first;
+                const uint64_t coord = cutCopy.top().second;
+                cutCopy.pop();
+
+                const int lodIndex = maxLevel - logicalLevel;
+                if (lodIndex < 0 || lodIndex > maxLevel || multiResModel.lods[lodIndex] == nullptr)
+                {
+                    continue;
+                }
+
+                if (multiResModel.lods[lodIndex]->cubeTable.count(coord) == 0)
+                {
+                    continue;
+                }
+
+                offlineCut.push_back(RenderCell{lodIndex, coord});
+            }
+
+            constexpr int offlineWidth = 640;
+            const int offlineHeight = std::max(1, static_cast<int>(offlineWidth * static_cast<float>(viewer->height) / static_cast<float>(viewer->width)));
+
+            /* Get the viewport position to initialze the position camera */
+            Camera offlineCamera = *viewer->camera;
+            offlineCamera.set_position(viewer->camera->get_position() * (1.0f / viewer->scale));
+            offlineCamera.set_aspect(static_cast<float>(offlineWidth) / static_cast<float>(offlineHeight));
+            offlineCamera.set_near(viewer->camera->get_near() * (1.0f / viewer->scale));
+            offlineCamera.set_far(viewer->camera->get_far() * (1.0f / viewer->scale));
+
+            std::cout << "\n[R] Offline ray tracing started ( " 
+            <<offlineCut.size()<<" cells, "<<
+            offlineWidth << "x" << offlineHeight << ")...\n";
+
+            OfflineRender OfflineRender(multiResModel);
+            const bool success = OfflineRender.RenderCut
+            (offlineCut, offlineCamera, offlineWidth, offlineHeight, 
+                "./pic/offline_adaptive_lod.ppm", OfflineRender::DebugMode::LodLevel);
+
+            // const bool success = OfflineRender.RenderLOD
+            // (0, offlineCamera, offlineWidth, offlineHeight,
+            //                                              "./pic/offline_adaptive_lod.ppm", OfflineRender::DebugMode::LodLevel);
+
+            if (success)
+            {
+                std::cout << "[R] Adaptive offline render written to ./pic/offline_render.ppm\n";
+            }
+            else
+            {
+                std::cerr << "[R] Adaptive offline rendering failed.\n";
+            }
         }
 
         /* Render the current scene */
